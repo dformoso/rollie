@@ -1,0 +1,4 @@
+Main Device: Raspberry Pi Zero 2W
+HAT1: PiSugar 3 Whisplay
+HAT2: PiSugar 3 Battery
+Camera: Raspberry Pi Camera Module 3 Wide

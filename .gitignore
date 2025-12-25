@@ -1,0 +1,12 @@
+external_repos/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.venv
+*.log
+.DS_Store
