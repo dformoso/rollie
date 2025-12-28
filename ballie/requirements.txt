@@ -1,0 +1,4 @@
+psutil
+smbus2
+Pillow
+numpy
