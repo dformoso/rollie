@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+recordings/
+*.h264
+*.wav
+*.mp4
+ps_list.txt
