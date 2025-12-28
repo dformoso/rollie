@@ -19,8 +19,32 @@ class SystemStats:
         
         # Battery Smoothing
         self.bat_history = []
-        # Update is ~0.01s. 3000 samples = ~30s
-        self.BAT_HISTORY_LEN = 3000
+        # Update is ~0.5s. 60 samples = ~30s
+        self.BAT_HISTORY_LEN = 60
+        self.HISTORY_FILE = "/dev/shm/ballie_bat.json"
+        
+        # Load history if exists
+        self.load_history()
+
+    def load_history(self):
+        import json
+        try:
+            if os.path.exists(self.HISTORY_FILE):
+                with open(self.HISTORY_FILE, 'r') as f:
+                    self.bat_history = json.load(f)
+                    # Ensure limit
+                    if len(self.bat_history) > self.BAT_HISTORY_LEN:
+                        self.bat_history = self.bat_history[-self.BAT_HISTORY_LEN:]
+        except:
+            pass
+            
+    def save_history(self):
+        import json
+        try:
+            with open(self.HISTORY_FILE, 'w') as f:
+                json.dump(self.bat_history, f)
+        except:
+            pass
 
     def get_battery_socket(self):
         """
@@ -108,6 +132,8 @@ class SystemStats:
              if len(self.bat_history) > self.BAT_HISTORY_LEN:
                  self.bat_history.pop(0)
              
+             self.save_history()
+
              # Calculate Weighted Average (bias towards lowest)
              if self.bat_history:
                  # avg = sum(self.bat_history) / len(self.bat_history)

@@ -36,6 +36,12 @@ WIDTH = 240
 HEIGHT = 280
 FPS = 50
 
+# User Configuration for Auto-Copy
+USER_IP = "192.168.50.254"
+USER_NAME = "daniel"
+USER_PASS = "24602460"
+DEST_DIR = "/home/daniel/programming/ballie/ballie/recordings"
+
 def signal_handler(sig, frame):
     print("\nExiting...")
     raise KeyboardInterrupt
@@ -277,6 +283,19 @@ def _do_toggle_record(picam2, config):
                 print(f"Saved: {out}")
                 if os.path.exists(vid): os.remove(vid)
                 if os.path.exists(aud): os.remove(aud)
+                
+                # Copy to User System
+                print(f"Copying to {USER_IP}...")
+                copy_cmd = [
+                    "sshpass", "-p", USER_PASS,
+                    "scp", "-o", "StrictHostKeyChecking=no",
+                    out, f"{USER_NAME}@{USER_IP}:{DEST_DIR}/"
+                ]
+                try:
+                    subprocess.run(copy_cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    print("Copy Successful.")
+                except Exception as e:
+                     print(f"Copy Failed: {e}")
             except Exception as e:
                 print(f"Muxing Failed: {e}")
 
@@ -431,21 +450,79 @@ def draw_big_stats(draw, stats, width, height_limit):
     draw.rectangle([chart_x, y_crs, chart_x + int(chart_w * (stats.get('disk_percent', 0)/100)), y_crs + bar_h], fill=(100, 100, 255))
     y_crs += 16
     
-    # Row 3
-    time_str = stats.get('time_str', '--:--')
-    c_text = (220, 220, 200)
+    # Row 3 (Network)
     
-    draw_globe(draw, pad_corner, y_crs+2, 12, c_text)
-    draw.text((pad_corner + 16, y_crs), stats.get('ip', '..'), font=font_small, fill=c_text)
+    # 3.1 Local IP
+    local_ip = stats.get('ip', '..')
+    draw.text((pad_corner, y_crs), f"LOCAL: {local_ip}", font=font_small, fill=c_cyan)
     
+    # CPU Temp (Right Aligned on Local Line)
     temp = stats.get('cpu_temp', 0)
     temp_str = f"{temp:.0f}C"
+    c_text = (220, 220, 200)
     t_w = draw.textbbox((0,0), temp_str, font=font_small)[2]
     draw.text((width - pad_corner - t_w, y_crs), temp_str, font=font_small, fill=c_text)
     draw_thermo(draw, width - pad_corner - t_w - 14, y_crs+2, 12, c_text)
     
-    time_w = draw.textbbox((0,0), time_str, font=get_font(13))[2]
-    draw.text(((width - time_w)//2, y_crs + 12), time_str, font=get_font(13), fill=c_cyan)
+    y_crs += 12
+    
+    # 3.2 Server IP
+    # Global 'server_status' is updated by background thread
+    # 0=Disc(Red), 1=Conn(Green), 2=Copy(Blue)
+    try:
+        status = server_status.get('state', 0)
+    except:
+        status = 0
+        
+    srv_col = c_cyan
+    status_text = "ERR"
+    icon_col = (255, 0, 0) # Red
+    
+    if status == 1: 
+        status_text = "OK"
+        icon_col = c_green
+    elif status == 2: 
+        status_text = "COPY"
+        icon_col = (0, 100, 255) # Blue
+    elif status == 0:
+        status_text = "ERR"
+        icon_col = (255, 0, 0)
+    
+    draw.text((pad_corner, y_crs), f"SERVER: {USER_IP}", font=font_small, fill=srv_col)
+    
+    # Status Text (Right Aligned)
+    st_w = draw.textbbox((0,0), status_text, font=font_small)[2]
+    draw.text((width - pad_corner - st_w, y_crs), status_text, font=font_small, fill=icon_col)
+
+# Server Monitor Thread
+server_status = {'state': 0} # 0=Disc, 1=Conn, 2=Copy
+
+def monitor_server_thread():
+    while True:
+        try:
+            # 1. Check Copying (scp/rsync)
+            # pgrep returns 0 if found
+            res = subprocess.call(["pgrep", "-f", "scp|rsync"], stdout=subprocess.DEVNULL)
+            is_copying = (res == 0)
+            
+            if is_copying:
+                server_status['state'] = 2
+            else:
+                # 2. Ping Server (Timeout 1s)
+                # -c 1 = 1 packet, -W 1 = 1 sec timeout
+                param = "-n" if sys.platform.lower()=='win32' else "-c"
+                cmd = ["ping", param, "1", "-W", "1", USER_IP]
+                res = subprocess.call(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                
+                if res == 0:
+                    server_status['state'] = 1
+                else:
+                    server_status['state'] = 0
+                    
+        except:
+             server_status['state'] = 0
+             
+        time.sleep(1.0)
 
 
 def main():
@@ -474,7 +551,9 @@ def main():
     config = picam2.create_video_configuration(
         main={"size": (1920, 1080), "format": "YUV420"},
         lores={"size": (480, 270), "format": "YUV420"},
-        controls={"FrameDurationLimits": (20000, 20000)} # 20ms = 50fps
+        controls={
+            "FrameDurationLimits": (20000, 20000)
+        }
     )
     picam2.configure(config)
     picam2.start()
@@ -485,6 +564,13 @@ def main():
 
     print(f"Camera started.")
     print(f"Short Press: Record | Long Press (>0.5s): Pause")
+
+    # Start Server Monitor
+    try:
+        t_srv = threading.Thread(target=monitor_server_thread, daemon=True)
+        t_srv.start()
+    except:
+        pass
     
     try:
         while True:
@@ -526,7 +612,7 @@ def main():
                 continue
 
             pil_img = Image.fromarray(image)
-            pil_img = pil_img.rotate(180)
+            # pil_img = pil_img.rotate(180) # Disabled by user request
             
             img_w, img_h = pil_img.size
             scale = min(WIDTH / img_w, HEIGHT / img_h)
