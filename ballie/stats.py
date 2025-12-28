@@ -16,6 +16,11 @@ class SystemStats:
         except Exception as e:
             # print(f"Warning: Could not open I2C bus: {e}")
             pass
+        
+        # Battery Smoothing
+        self.bat_history = []
+        # Update is ~0.01s. 3000 samples = ~30s
+        self.BAT_HISTORY_LEN = 3000
 
     def get_battery_socket(self):
         """
@@ -27,7 +32,7 @@ class SystemStats:
             
         try:
             with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
-                s.settimeout(0.5)
+                s.settimeout(0.1)
                 s.connect(sock_path)
                 
                 # Get Percentage
@@ -96,6 +101,22 @@ class SystemStats:
         except Exception as e:
             error = True
             
+        
+        # Add to history and smooth
+        if not error and percent > 0:
+             self.bat_history.append(percent)
+             if len(self.bat_history) > self.BAT_HISTORY_LEN:
+                 self.bat_history.pop(0)
+             
+             # Calculate Weighted Average (bias towards lowest)
+             if self.bat_history:
+                 # avg = sum(self.bat_history) / len(self.bat_history)
+                 curr_avg = sum(self.bat_history) / len(self.bat_history)
+                 min_val = min(self.bat_history)
+                 
+                 # (Average + 4 * Minimum) / 5
+                 percent = (curr_avg + (min_val * 100)) / 101
+        
         return {
             "percent": float(percent),
             "voltage": 0.0, 

@@ -34,7 +34,7 @@ except Exception as e:
 # Configuration
 WIDTH = 240
 HEIGHT = 280
-FPS = 30
+FPS = 50
 
 def signal_handler(sig, frame):
     print("\nExiting...")
@@ -82,6 +82,87 @@ import threading
 import subprocess
 import shutil
 from datetime import datetime
+
+# YUV420 to RGB Conversion Helper
+def yuv420_to_rgb(yuv_data, width, height):
+    # YUV420 (I420/NV12/NV21) comes as 1.5x height
+    # We assume I420 (Planar: Y full, U quarter, V quarter) or NV12 from Picamera2 default
+    # Picamera2 capture_array usually returns valid buffer structure but might be planar concatenation
+    # Actually, for Picamera2, capture_array with "format='YUV420'" returns I420 usually.
+    
+    # Extract Y
+    y = yuv_data[:height, :width]
+    
+    # Extract UV
+    # I420: Y (w*h) + U (w/2 * h/2) + V (w/2 * h/2)
+    # But often U and V are flattened or structured. 
+    # Let's handle generic conversion assuming standard memory layout.
+    
+    # Fast path: try to use OpenCV if it existed, but it doesn't.
+    # Manual NumPy with slicing to handle strided buffers (padding):
+    # DIAGNOSIS V2: User reported yellow line at right edge.
+    # Implies previous "Packed Side-by-Side" (0..240, 240..480) was close but mismatched.
+    # Hardware likely aligns planes to 32 bytes (256 bytes for 512 stride).
+    # Stride = 512. Width/2 = 240.
+    # U: 0..240. (Padding 240..256).
+    # V: 256..496. (Padding 496..512).
+    
+    stride = yuv_data.shape[1]
+    
+    # 1. Extract Y Plane (using slice to ignore stride padding)
+    Y = yuv_data[:height, :width].astype(np.float32)
+    
+    # 2. Extract UV Planes (Planar I420: U then V)
+    uv_h = height // 2
+    uv_w = width // 2
+    
+    # Slice UV rows
+    UV_view = yuv_data[height:, :]
+    
+    # Flatten to treat as sequential blocks
+    UV_flat = UV_view.flatten()
+    
+    # Split into U and V (equal size)
+    # Total UV bytes = stride * uv_h
+    # U bytes = (stride * uv_h) / 2
+    # V bytes = (stride * uv_h) / 2
+    sz = UV_flat.size // 2
+    
+    U_flat = UV_flat[:sz]
+    V_flat = UV_flat[sz:]
+    
+    # Reshape to (uv_h, stride // 2)
+    # Note: Stride in Y is for full width. Chroma stride is usually half Y stride.
+    chroma_stride = stride // 2
+    
+    U_full = U_flat.reshape((uv_h, chroma_stride))
+    V_full = V_flat.reshape((uv_h, chroma_stride))
+    
+    # Crop to valid width
+    U_part = U_full[:, :uv_w].astype(np.float32)
+    V_part = V_full[:, :uv_w].astype(np.float32)
+
+    # Upsample (Repeat rows x2, Repeat cols x2)
+    U = U_part.repeat(2, axis=0).repeat(2, axis=1)
+    V = V_part.repeat(2, axis=0).repeat(2, axis=1)
+    
+    # Adjust for center
+    U -= 128
+    V -= 128
+    
+    # Standard BT.601 conversion
+    R = Y + 1.402 * V
+    G = Y - 0.344136 * U - 0.714136 * V
+    B = Y + 1.772 * U
+    
+    # Clip and cast
+    R = np.clip(R, 0, 255).astype(np.uint8)
+    G = np.clip(G, 0, 255).astype(np.uint8)
+    B = np.clip(B, 0, 255).astype(np.uint8)
+    
+    # Stack
+    rgb = np.dstack((R, G, B))
+    return rgb
 
 # ... existing imports ...
 
@@ -215,15 +296,48 @@ def _do_toggle_pause(board):
 # ... (Draw functions untouched) ...
 
 
-def draw_recording_indicator(draw, width, height_limit):
-    # Red Dot in top right or center?
-    # Top center
-    cx, cy = width // 2, 10
-    rad = 4
-    # Blink logic handled by main loop? Or just static dot for now.
-    # Blinking: Use time
-    if int(time.time() * 2) % 2 == 0:
-        draw.ellipse([cx-rad, cy-rad, cx+rad, cy+rad], fill=(255, 0, 0))
+def draw_status_badge(draw, width, video_bottom_y, is_recording):
+    # Badge Logic
+    # Position: Centered, some padding below video
+    badge_w = 60
+    badge_h = 24
+    pad_top = 5
+    
+    cx = width // 2
+    y = video_bottom_y + pad_top
+    
+    # Coordinates
+    x0 = cx - badge_w // 2
+    y0 = y
+    x1 = cx + badge_w // 2
+    y1 = y + badge_h
+    
+    # Color & Text
+    if is_recording:
+        fill_col = (255, 0, 0) # Red
+        text = "REC"
+    else:
+        fill_col = (57, 255, 20) # Green (same as accent)
+        text = "LIVE"
+        
+    # Draw Rounded Rect
+    draw.rounded_rectangle([x0, y0, x1, y1], radius=8, fill=fill_col)
+    
+    # Draw Text
+    font = get_font(12)
+    # text dimensions
+    try:
+        bb = draw.textbbox((0,0), text, font=font)
+        tw = bb[2] - bb[0]
+        th = bb[3] - bb[1]
+    except:
+        tw, th = 20, 10
+        
+    text_x = x0 + (badge_w - tw) // 2
+    # Vertically center approx
+    text_y = y0 + (badge_h - th) // 2 - 2
+    
+    draw.text((text_x, text_y), text, font=font, fill=(255, 255, 255))
 
 
 # ... (Original draw_big_stats kept but modified for Colors) ...
@@ -290,9 +404,7 @@ def draw_big_stats(draw, stats, width, height_limit):
     ss_w = draw.textbbox((0,0), ssid, font=font_row1)[2]
     draw.text((wifi_x_end - (5 * (bar_w + gap)) - 5 - ss_w, y_crs), ssid, font=font_row1, fill=c_cyan)
     
-    # Recording Indicator
-    if is_recording:
-        draw_recording_indicator(draw, width, height_limit)
+
         
     y_crs += 22
     
@@ -357,11 +469,12 @@ def main():
     picam2 = Picamera2()
     
     # Configure camera for video capture
-    # main: RGB for display
-    # loares: YUV for H264 encoder (recording)
+    # main: YUV 1080p for H264 encoder (recording). High Res.
+    # lores: YUV 480x270 for display (16:9). Low Res. REQUIRED to be YUV by Picamera2/Hardware.
     config = picam2.create_video_configuration(
-        main={"size": (640, 480), "format": "RGB888"},
-        lores={"size": (640, 480), "format": "YUV420"}
+        main={"size": (1920, 1080), "format": "YUV420"},
+        lores={"size": (480, 270), "format": "YUV420"},
+        controls={"FrameDurationLimits": (20000, 20000)} # 20ms = 50fps
     )
     picam2.configure(config)
     picam2.start()
@@ -400,8 +513,15 @@ def main():
             try:
                 # Add timeout protection? No effortless way.
                 # If muxing makes it lag, 'nice' should help.
-                image = picam2.capture_array()
+                # Capture from "lores" (low res YUV) for display
+                image_yuv = picam2.capture_array("lores")
+                
+                # Convert YUV to RGB
+                # We know config is 480x270. 
+                # image_yuv has stride (e.g. 512). Pass explicit 480 width to crop stride.
+                image = yuv420_to_rgb(image_yuv, 480, 270)
             except Exception as e:
+                # print(f"Capture Error: {e}")
                 time.sleep(0.01)
                 continue
 
@@ -419,11 +539,17 @@ def main():
             
             final_img = Image.new("RGB", (WIDTH, HEIGHT), (0, 0, 0))
             offset_x = (WIDTH - new_w) // 2
-            offset_y = HEIGHT - new_h
+            # offset_y = HEIGHT - new_h # Old bottom align
+            offset_y = 110 # Fixed top align below stats (110 = 90 + gap)
+            
             final_img.paste(pil_img, (offset_x, offset_y))
             
             draw = ImageDraw.Draw(final_img)
-            draw_big_stats(draw, current_stats, WIDTH, offset_y)
+            # Stats (pass 0 as y limit, not used effectively inside but kept for sig)
+            draw_big_stats(draw, current_stats, WIDTH, 0)
+            
+            # Status Badge
+            draw_status_badge(draw, WIDTH, offset_y + new_h, is_recording)
             
             # Common Render ...
             image = np.array(final_img)
