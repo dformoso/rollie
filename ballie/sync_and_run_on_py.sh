@@ -100,48 +100,44 @@ else
     echo "Skipping dependency check (run with 'dependencies_check' to enable)."
 fi
 
-# Factory setup routine (Auto-detect missing Pico)
-    echo "Checking for Pico at /dev/ttyACM0..."
+# Factory setup routine (Always Prompt)
+    echo "Checking for Pico flash override..."
     sshpass -p '2460' ssh -t "$PI_USER@$PI_HOST" "
-        if [ ! -e /dev/ttyACM0 ]; then
-            echo ''
-            echo '==============================================================='
-            echo 'PICO NOT DETECTED (FACTORY SETUP / RECOVERY)'
-            echo '==============================================================='
-            echo 'Do you want to flash the MicroPython UF2 firmware?'
-            echo 'Hold the BOOTSEL button and plug in the Pico (or reset it while holding BOOTSEL).'
-            read -t 5 -p 'Type y and press ENTER to flash (skipping in 5 seconds...): ' response
-            echo ''
-            if [[ \"\$response\" =~ ^[Yy]$ ]]; then
-                echo 'Looking for RPI-RP2 drive (/dev/sda1)...'
-                sleep 2
-                if [ -b /dev/sda1 ]; then
-                    echo '24602460' | sudo -S mkdir -p /mnt/pico
-                    echo '24602460' | sudo -S mount /dev/sda1 /mnt/pico
-                    echo 'Flashing pimoroni-pico2-micropython.uf2...'
-                    echo '24602460' | sudo -S cp $DEST_DIR/pico-shim-firmware/pimoroni-pico2-micropython.uf2 /mnt/pico/
-                    echo '24602460' | sudo -S sync
-                    echo 'UF2 flashed. Pico should reboot as /dev/ttyACM0.'
-                    sleep 5
-                else
-                    echo 'ERROR: /dev/sda1 not found. Ensure Pico is in BOOTSEL mode.'
-                fi
+        echo ''
+        echo '==============================================================='
+        echo 'FACTORY PICO SETUP / RECOVERY'
+        echo '==============================================================='
+        echo 'Do you want to flash the MicroPython UF2 firmware?'
+        echo 'Hold the BOOTSEL button and plug in the Pico (or reset it while holding BOOTSEL).'
+        read -t 5 -p 'Type y and press ENTER to flash (skipping in 5 seconds...): ' response
+        echo ''
+        if [[ \"\$response\" =~ ^[Yy]$ ]]; then
+            echo 'Looking for RPI-RP2 drive (/dev/sda1)...'
+            sleep 2
+            if [ -b /dev/sda1 ]; then
+                echo '24602460' | sudo -S mkdir -p /mnt/pico
+                echo '24602460' | sudo -S mount /dev/sda1 /mnt/pico
+                echo 'Flashing pimoroni-pico2-micropython.uf2...'
+                echo '24602460' | sudo -S cp $DEST_DIR/pico-shim-firmware/pimoroni-pico2-micropython.uf2 /mnt/pico/
+                echo '24602460' | sudo -S sync
+                echo 'UF2 flashed. Pico should reboot as /dev/ttyACM0.'
+                sleep 5
             else
-                echo 'Skipping UF2 flashing.'
+                echo 'ERROR: /dev/sda1 not found. Ensure Pico is in BOOTSEL mode.'
             fi
-            
-            echo 'Waiting for Pico to appear as /dev/ttyACM0...'
-            for i in {1..10}; do
-                if [ -e /dev/ttyACM0 ]; then
-                    echo 'Pico found! Deploying python scripts...'
-                    python3 $DEST_DIR/pico-shim-firmware/deploy_to_pico.py $DEST_DIR/pico-shim-firmware
-                    break
-                fi
-                sleep 1
-            done
         else
-            echo 'Pico detected.'
+            echo 'Skipping UF2 flashing.'
         fi
+        
+        echo 'Waiting for Pico to appear as /dev/ttyACM0...'
+        for i in {1..10}; do
+            if [ -e /dev/ttyACM0 ]; then
+                echo 'Pico found! Deploying python scripts...'
+                python3 $DEST_DIR/pico-shim-firmware/deploy_to_pico.py $DEST_DIR/pico-shim-firmware
+                break
+            fi
+            sleep 1
+        done
     "
 
 # Kill any stale processes holding the Pico serial port
