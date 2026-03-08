@@ -2,3 +2,4 @@ psutil
 smbus2
 Pillow
 numpy
+pyserial

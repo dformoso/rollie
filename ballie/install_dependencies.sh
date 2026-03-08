@@ -2,7 +2,7 @@
 
 echo "Installing system dependencies..."
 sudo apt-get update
-sudo apt-get install -y python3-psutil python3-smbus i2c-tools python3-pil python3-numpy sshpass
+sudo apt-get install -y python3-psutil python3-smbus i2c-tools python3-pil python3-numpy sshpass python3-serial
 
 echo "Installing Python dependencies (if needed)..."
 # We use --break-system-packages if running on newer RaspiOS (Bookworm+) outside a venv, 
