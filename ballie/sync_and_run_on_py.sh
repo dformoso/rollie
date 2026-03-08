@@ -12,12 +12,15 @@ PICO_SERIAL="/dev/ttyACM0"
 # Arguments
 MODE="foreground"
 INSTALL_DEPS=false
+FLASH_PICO=false
 
-# Check for dependencies_check flag in any argument
+# Check for flags in arguments
 for arg in "$@"
 do
     if [ "$arg" == "dependencies_check" ]; then
         INSTALL_DEPS=true
+    elif [ "$arg" == "flash_pico" ]; then
+        FLASH_PICO=true
     fi
 done
 
@@ -50,13 +53,19 @@ echo "Fixing remote permissions..."
 sshpass -p '2460' ssh -t "$PI_USER@$PI_HOST" "echo '24602460' | sudo -S chown -R $PI_USER:$PI_USER $DEST_DIR"
 
 # 2. Sync Files to Pi Zero
-# NOTE: Pico firmware is already flashed and managed via UART, not USB.
 echo ""
 echo "Syncing from $SOURCE_DIR to $PI_USER@$PI_HOST:$DEST_DIR"
-sshpass -p '2460' rsync -av --delete --exclude '__pycache__/' --exclude '.git/' --exclude 'external_repos/' --exclude '*.uf2' "$SOURCE_DIR" "$PI_USER@$PI_HOST:$DEST_DIR"
 
-echo "Syncing from $PICO_FIRMWARE_DIR to $PI_USER@$PI_HOST:$DEST_DIR/pico-shim-firmware"
-sshpass -p '2460' rsync -av --delete --exclude '__pycache__/' --exclude '.git/' --exclude '*.uf2' "$PICO_FIRMWARE_DIR/" "$PI_USER@$PI_HOST:$DEST_DIR/pico-shim-firmware"
+if [ "$FLASH_PICO" = true ]; then
+    echo "Including .uf2 firmware files for Pico flashing..."
+    sshpass -p '2460' rsync -av --delete --exclude '__pycache__/' --exclude '.git/' --exclude 'external_repos/' "$SOURCE_DIR" "$PI_USER@$PI_HOST:$DEST_DIR"
+    echo "Syncing from $PICO_FIRMWARE_DIR to $PI_USER@$PI_HOST:$DEST_DIR/pico-shim-firmware"
+    sshpass -p '2460' rsync -av --delete --exclude '__pycache__/' --exclude '.git/' "$PICO_FIRMWARE_DIR/" "$PI_USER@$PI_HOST:$DEST_DIR/pico-shim-firmware"
+else
+    sshpass -p '2460' rsync -av --delete --exclude '__pycache__/' --exclude '.git/' --exclude 'external_repos/' --exclude '*.uf2' "$SOURCE_DIR" "$PI_USER@$PI_HOST:$DEST_DIR"
+    echo "Syncing from $PICO_FIRMWARE_DIR to $PI_USER@$PI_HOST:$DEST_DIR/pico-shim-firmware"
+    sshpass -p '2460' rsync -av --delete --exclude '__pycache__/' --exclude '.git/' --exclude '*.uf2' "$PICO_FIRMWARE_DIR/" "$PI_USER@$PI_HOST:$DEST_DIR/pico-shim-firmware"
+fi
 
 # 4. Handle "background on" (Install Service, Start, Exit)
 if [ "$MODE" == "background_on" ]; then
@@ -98,6 +107,49 @@ if [ "$INSTALL_DEPS" = true ]; then
     sshpass -p '2460' ssh -t "$PI_USER@$PI_HOST" "chmod +x $DEST_DIR/install_dependencies.sh && echo '24602460' | sudo -S $DEST_DIR/install_dependencies.sh && echo '24602460' | sudo -S apt-get install -y ffmpeg"
 else
     echo "Skipping dependency check (run with 'dependencies_check' to enable)."
+fi
+
+# Factory setup routine
+if [ "$FLASH_PICO" = true ]; then
+    echo ""
+    echo "==============================================================="
+    echo "FACTORY PICO SETUP"
+    echo "==============================================================="
+    # Pass interactive bash script to Pi Zero over SSH
+    sshpass -p '2460' ssh -t "$PI_USER@$PI_HOST" "
+        echo ''
+        echo 'Do you want to flash the MicroPython UF2 firmware?'
+        echo 'Hold the BOOTSEL button and plug in the Pico (or reset it while holding BOOTSEL).'
+        read -t 5 -p 'Type y and press ENTER to flash (skipping in 5 seconds...): ' response
+        echo ''
+        if [[ \"\$response\" =~ ^[Yy]$ ]]; then
+            echo 'Looking for RPI-RP2 drive (/dev/sda1)...'
+            sleep 2
+            if [ -b /dev/sda1 ]; then
+                echo '24602460' | sudo -S mkdir -p /mnt/pico
+                echo '24602460' | sudo -S mount /dev/sda1 /mnt/pico
+                echo 'Flashing pimoroni-pico2-micropython.uf2...'
+                echo '24602460' | sudo -S cp $DEST_DIR/pico-shim-firmware/pimoroni-pico2-micropython.uf2 /mnt/pico/
+                echo '24602460' | sudo -S sync
+                echo 'UF2 flashed. Pico should reboot as /dev/ttyACM0.'
+                sleep 5
+            else
+                echo 'ERROR: /dev/sda1 not found. Ensure Pico is in BOOTSEL mode.'
+            fi
+        else
+            echo 'Skipping UF2 flashing.'
+        fi
+        
+        echo 'Waiting for Pico to appear as /dev/ttyACM0...'
+        for i in {1..10}; do
+            if [ -e /dev/ttyACM0 ]; then
+                echo 'Pico found! Deploying python scripts...'
+                python3 $DEST_DIR/pico-shim-firmware/deploy_to_pico.py $DEST_DIR/pico-shim-firmware
+                break
+            fi
+            sleep 1
+        done
+    "
 fi
 
 # Kill any stale processes holding the Pico serial port
