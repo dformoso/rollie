@@ -88,6 +88,17 @@ import threading
 import subprocess
 import shutil
 from datetime import datetime
+import serial
+
+# Serial Configuration for Pico
+SERIAL_PORT = "/dev/serial0"
+SERIAL_BAUD = 9600
+pico_serial = None
+try:
+    pico_serial = serial.Serial(SERIAL_PORT, SERIAL_BAUD, timeout=0)
+    print(f"Opened Serial Port: {SERIAL_PORT}")
+except Exception as e:
+    print(f"Warning: Could not open {SERIAL_PORT} - {e}")
 
 # YUV420 to RGB Conversion Helper
 def yuv420_to_rgb(yuv_data, width, height):
@@ -175,9 +186,10 @@ def yuv420_to_rgb(yuv_data, width, height):
 # Global State
 is_paused = False
 is_recording = False
+demo_mode_active = False
 recording_process = None
 recording_filename_base = None
-pending_action = None # 'record', 'pause'
+pending_action = None # 'record', 'demo_toggle'
 
 # Thread-safe trigger
 def trigger_action(action):
@@ -197,12 +209,35 @@ def handle_whisplay_release():
     duration = time.time() - press_start_time
     # print(f"Button Released (Duration: {duration:.2f}s)")
     
-    if duration > 0.5: # Long Press (> 0.5s) -> PAUSE
-        trigger_action('pause')
+    if duration > 0.5: # Long Press (> 0.5s) -> DEMO TOGGLE
+        trigger_action('demo_toggle')
     else: # Short Press -> RECORD
         trigger_action('record')
 
 # Actual Logic (Run in Main Loop)
+def _do_toggle_demo():
+    global demo_mode_active, pico_serial
+    demo_mode_active = not demo_mode_active
+    print(f"Demo Mode Toggled -> {demo_mode_active}")
+    
+    cmd = b"<PITCH:10.0>\n" if demo_mode_active else b"<STOP>\n"
+    
+    if pico_serial is not None:
+        try:
+            pico_serial.write(cmd)
+            print(f"Sent to Pico: {cmd.strip().decode()}")
+        except Exception as e:
+            print(f"Error sending to Pico: {e}")
+            # Try to reconnect
+            try:
+                pico_serial.close()
+                pico_serial = serial.Serial(SERIAL_PORT, SERIAL_BAUD, timeout=0)
+                pico_serial.write(cmd)
+            except:
+                pass
+    else:
+        print(f"Mocking sent to Pico: {cmd.strip().decode()}")
+
 def _do_toggle_record(picam2, config):
     global is_recording, recording_process, recording_filename_base
     
@@ -304,13 +339,6 @@ def _do_toggle_record(picam2, config):
             t.start()
         except:
             pass
-
-def _do_toggle_pause(board):
-    global is_paused
-    is_paused = not is_paused
-    print(f"Pause Toggled -> {is_paused}")
-    if is_paused:
-        board.fill_screen(0)
 
 # ... (Draw functions untouched) ...
 
@@ -558,12 +586,12 @@ def main():
     picam2.configure(config)
     picam2.start()
 
-    # Register Button Callbacks (Short=Record, Long=Pause)
+    # Register Button Callbacks (Short=Record, Long=Demo Toggle)
     board.on_button_press(handle_whisplay_press)
     board.on_button_release(handle_whisplay_release)
 
     print(f"Camera started.")
-    print(f"Short Press: Record | Long Press (>0.5s): Pause")
+    print(f"Short Press: Record | Long Press (>0.5s): Demo Toggle (Motors)")
 
     # Start Server Monitor
     try:
@@ -582,8 +610,8 @@ def main():
                 
                 if act == 'record':
                     _do_toggle_record(picam2, config)
-                elif act == 'pause':
-                    _do_toggle_pause(board)
+                elif act == 'demo_toggle':
+                    _do_toggle_demo()
             
             # Stats (0.5s)
             if time.time() - last_stat_time > 0.5:
