@@ -82,7 +82,7 @@ def main():
 
     pitch = 0.0
     yaw = 0.0
-    pitch_step = 5.0  # degrees per keypress
+    pitch_step = 0.5  # degrees per keypress
 
     try:
         tty.setraw(sys.stdin.fileno())
@@ -129,11 +129,11 @@ def main():
                 cmd = f"<PITCH:{pitch:.1f}>"
 
             elif key in ('a', 'A') or key == ARROW_LEFT:
-                yaw = max(yaw - 10.0, -50.0)
+                yaw = max(round(yaw - 1.0, 1), -50.0)
                 cmd = f"<YAW:{yaw:.1f}>"
 
             elif key in ('d', 'D') or key == ARROW_RIGHT:
-                yaw = min(yaw + 10.0, 50.0)
+                yaw = min(round(yaw + 1.0, 1), 50.0)
                 cmd = f"<YAW:{yaw:.1f}>"
 
             elif key == ' ':
@@ -142,12 +142,12 @@ def main():
                 cmd = "<STOP>"
 
             elif key == '+' or key == '=':
-                pitch_step = min(pitch_step + 1.0, 20.0)
+                pitch_step = min(round(pitch_step + 0.1, 1), 20.0)
                 sys.stdout.write(f"\r\033[K[CTRL] Pitch step: {pitch_step}°\r\n")
                 sys.stdout.flush()
 
             elif key == '-' or key == '_':
-                pitch_step = max(pitch_step - 1.0, 1.0)
+                pitch_step = max(round(pitch_step - 0.1, 1), 0.1)
                 sys.stdout.write(f"\r\033[K[CTRL] Pitch step: {pitch_step}°\r\n")
                 sys.stdout.flush()
 

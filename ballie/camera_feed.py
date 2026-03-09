@@ -220,7 +220,7 @@ def _do_toggle_demo():
     demo_mode_active = not demo_mode_active
     print(f"Demo Mode Toggled -> {demo_mode_active}")
     
-    cmd = b"<PITCH:10.0>\n" if demo_mode_active else b"<STOP>\n"
+    cmd = b"<PITCH:1.0>\n" if demo_mode_active else b"<STOP>\n"
     
     if pico_serial is not None:
         try:
