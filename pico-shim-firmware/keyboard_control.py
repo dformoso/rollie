@@ -32,14 +32,21 @@ import serial
 
 # Configuration
 SERIAL_PORT = "/dev/ttyACM0"
+HIDE_TELEMETRY = True
+
 if len(sys.argv) > 1:
-    arg = sys.argv[1].lower()
-    if arg in ['usb', '/dev/ttyacm0']:
-        SERIAL_PORT = "/dev/ttyACM0"
-    elif arg in ['serial', 'serial0', '/dev/serial0']:
-        SERIAL_PORT = "/dev/serial0"
-    else:
-        SERIAL_PORT = sys.argv[1]
+    args = sys.argv[1:]
+    for arg in args:
+        val = arg.lower()
+        if val == '--show-telemetry':
+            HIDE_TELEMETRY = False
+        elif val in ['usb', '/dev/ttyacm0']:
+            SERIAL_PORT = "/dev/ttyACM0"
+        elif val in ['serial', 'serial0', '/dev/serial0']:
+            SERIAL_PORT = "/dev/serial0"
+        elif not val.startswith('--'):
+            SERIAL_PORT = val
+
 BAUD_RATE = 9600
 
 # Arrow key escape sequences
@@ -109,6 +116,8 @@ def main():
             if ser.in_waiting:
                 line = ser.readline().decode('utf-8', errors='ignore').strip()
                 if line:
+                    if HIDE_TELEMETRY and ("[PICO_HEARTBEAT]" in line or "P: " in line):
+                        continue
                     # Move cursor to start, clear line, print, then restore
                     sys.stdout.write(f"\r\033[K[PICO] {line}\r\n")
                     sys.stdout.flush()

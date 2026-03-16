@@ -39,7 +39,7 @@ PWM_FREQ = 100  # 100 Hz — gives motors more torque/punch than 20kHz
 class RawMotor:
     """Drive a DRV8833 H-bridge channel with raw PWM."""
 
-    def __init__(self, pin1_num, pin2_num, min_duty=50000):
+    def __init__(self, pin1_num, pin2_num, min_duty=15000, invert=False, kick_duty=35000, kick_ms=50):
         self.pwm1 = PWM(Pin(pin1_num))
         self.pwm2 = PWM(Pin(pin2_num))
         self.pwm1.freq(PWM_FREQ)
@@ -47,17 +47,37 @@ class RawMotor:
         self.pwm1.duty_u16(0)
         self.pwm2.duty_u16(0)
         self.min_duty = min_duty
-
+        self.invert = invert
+        self.kick_duty = kick_duty
+        self.kick_ms = kick_ms
+        self.kick_end_time = 0
+        self.current_speed = 0.0
+ 
     def speed(self, spd):
         """Set speed from -1.0 (full reverse) to +1.0 (full forward)."""
+        if self.invert:
+            spd = -spd
+
         spd = max(-1.0, min(1.0, spd))
         abs_spd = abs(spd)
         
+        now = time.ticks_ms()
+
         if abs_spd < 0.001:
             duty = 0
+            self.current_speed = 0.0
         else:
-            # Map [0.001, 1.0] to [min_duty, 65535] to overcome friction
-            duty = int(self.min_duty + (65535 - self.min_duty) * abs_spd)
+            # Check if transitioning from 0 to non-zero to apply friction kick
+            if abs(self.current_speed) < 0.001:
+                self.kick_end_time = time.ticks_add(now, self.kick_ms)
+            
+            self.current_speed = spd
+            
+            if time.ticks_diff(self.kick_end_time, now) > 0:
+                duty = self.kick_duty
+            else:
+                # Map [0.001, 1.0] to [min_duty, 65535] to overcome dynamic friction
+                duty = int(self.min_duty + (65535 - self.min_duty) * abs_spd)
             
         if spd > 0:
             self.pwm1.duty_u16(duty)
@@ -90,8 +110,8 @@ class RawMotor:
 # ============================================================================
 
 # Motors via DRV8833 on Motor SHIM
-motor_left  = RawMotor(6, 7)     # Motor A: GP6 (AIN1), GP7 (AIN2)
-motor_right = RawMotor(27, 26)   # Motor B: GP27 (BIN1), GP26 (BIN2)
+motor_left  = RawMotor(6, 7, min_duty=15000, invert=False, kick_duty=35000, kick_ms=50)     # Motor A: GP6 (AIN1), GP7 (AIN2)
+motor_right = RawMotor(27, 26, min_duty=15000, invert=True, kick_duty=35000, kick_ms=50)    # Motor B: GP27 (BIN1), GP26 (BIN2)
 
 # BNO055 IMU via I2C1 (GP2 = SDA, GP3 = SCL) -> Moved to free up UART
 i2c = I2C(1, sda=Pin(2), scl=Pin(3), freq=400_000)
