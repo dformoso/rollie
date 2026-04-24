@@ -1,0 +1,14 @@
+# Copy this file to config.py and fill in your values.
+# config.py is gitignored and will never be committed.
+
+# IP address of the development machine that receives recorded footage
+USER_IP = "192.168.x.x"
+
+# SSH username on the development machine
+USER_NAME = "your_username"
+
+# SSH password on the development machine (used by sshpass for automated copy)
+USER_PASS = "your_password"
+
+# Path on the development machine where recordings are saved
+DEST_DIR = "/home/your_username/recordings"

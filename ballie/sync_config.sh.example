@@ -1,0 +1,23 @@
+# Copy this file to sync_config.sh and fill in your values.
+# sync_config.sh is gitignored and will never be committed.
+
+# IP address of the Raspberry Pi Zero 2 W on your local network
+PI_HOST="192.168.x.x"
+
+# SSH username on the Pi Zero
+PI_USER="your_pi_username"
+
+# SSH login password (used by sshpass for rsync/ssh)
+PI_SSH_PASS="your_ssh_password"
+
+# Sudo password on the Pi Zero (used for systemd, mount, chmod commands)
+PI_SUDO_PASS="your_sudo_password"
+
+# Path to the ballie/ source directory on your dev machine
+SOURCE_DIR="/path/to/ballie/ballie/"
+
+# Destination path on the Pi Zero
+DEST_DIR="/home/your_pi_username/ballie"
+
+# Path to the pico-shim-firmware directory on your dev machine
+PICO_FIRMWARE_DIR="/path/to/ballie/pico-shim-firmware"

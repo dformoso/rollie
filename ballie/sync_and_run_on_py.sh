@@ -1,12 +1,14 @@
 #!/bin/bash
 
-# Configuration
-PI_HOST="192.168.50.41"
-PI_USER="daniel"
-SOURCE_DIR="/home/daniel/programming/ballie/ballie/"
-DEST_DIR="/home/daniel/programming/ballie"
+# Load user configuration — copy sync_config.sh.example to sync_config.sh first
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ ! -f "$SCRIPT_DIR/sync_config.sh" ]; then
+    echo "Error: sync_config.sh not found. Copy sync_config.sh.example to sync_config.sh and fill in your values."
+    exit 1
+fi
+source "$SCRIPT_DIR/sync_config.sh"
+
 SERVICE_NAME="ballie_camera.service"
-PICO_FIRMWARE_DIR="/home/daniel/programming/ballie/pico-shim-firmware"
 PICO_SERIAL="/dev/ttyACM0"
 
 # Arguments
@@ -35,7 +37,7 @@ fi
 # Function to stop/remove service
 stop_service() {
     echo "Stopping and disabling $SERVICE_NAME on remote..."
-    sshpass -p '2460' ssh -t "$PI_USER@$PI_HOST" "echo '24602460' | sudo -S systemctl stop $SERVICE_NAME 2>/dev/null || true; echo '24602460' | sudo -S systemctl disable $SERVICE_NAME 2>/dev/null || true; echo '24602460' | sudo -S rm /etc/systemd/system/$SERVICE_NAME 2>/dev/null || true"
+    sshpass -p "$PI_SSH_PASS" ssh -t "$PI_USER@$PI_HOST" "echo "$PI_SUDO_PASS" | sudo -S systemctl stop $SERVICE_NAME 2>/dev/null || true; echo "$PI_SUDO_PASS" | sudo -S systemctl disable $SERVICE_NAME 2>/dev/null || true; echo "$PI_SUDO_PASS" | sudo -S rm /etc/systemd/system/$SERVICE_NAME 2>/dev/null || true"
 }
 
 # 1. Handle "background off" (Stop, Remove, Exit)
@@ -47,16 +49,16 @@ fi
 
 # Fix remote permissions (ownership) to ensure rsync can modify/delete files
 echo "Fixing remote permissions..."
-sshpass -p '2460' ssh -t "$PI_USER@$PI_HOST" "echo '24602460' | sudo -S chown -R $PI_USER:$PI_USER $DEST_DIR"
+sshpass -p "$PI_SSH_PASS" ssh -t "$PI_USER@$PI_HOST" "echo "$PI_SUDO_PASS" | sudo -S chown -R $PI_USER:$PI_USER $DEST_DIR"
 
 # 2. Sync Files to Pi Zero
 echo ""
 echo "Syncing from $SOURCE_DIR to $PI_USER@$PI_HOST:$DEST_DIR"
 
 # Always include .uf2 in case the factory flash prompt is triggered later
-sshpass -p '2460' rsync -av --delete --exclude '__pycache__/' --exclude '.git/' --exclude 'external_repos/' "$SOURCE_DIR" "$PI_USER@$PI_HOST:$DEST_DIR"
+sshpass -p "$PI_SSH_PASS" rsync -av --delete --exclude '__pycache__/' --exclude '.git/' --exclude 'external_repos/' "$SOURCE_DIR" "$PI_USER@$PI_HOST:$DEST_DIR"
 echo "Syncing from $PICO_FIRMWARE_DIR to $PI_USER@$PI_HOST:$DEST_DIR/pico-shim-firmware"
-sshpass -p '2460' rsync -av --delete --exclude '__pycache__/' --exclude '.git/' "$PICO_FIRMWARE_DIR/" "$PI_USER@$PI_HOST:$DEST_DIR/pico-shim-firmware"
+sshpass -p "$PI_SSH_PASS" rsync -av --delete --exclude '__pycache__/' --exclude '.git/' "$PICO_FIRMWARE_DIR/" "$PI_USER@$PI_HOST:$DEST_DIR/pico-shim-firmware"
 
 # 4. Handle "background on" (Install Service, Start, Exit)
 if [ "$MODE" == "background_on" ]; then
@@ -80,9 +82,9 @@ WantedBy=multi-user.target
 EOF
 
     echo "Copying service file to remote..."
-    sshpass -p '2460' scp ballie_camera.service "$PI_USER@$PI_HOST:$DEST_DIR/$SERVICE_NAME"
+    sshpass -p "$PI_SSH_PASS" scp ballie_camera.service "$PI_USER@$PI_HOST:$DEST_DIR/$SERVICE_NAME"
     
-    sshpass -p '2460' ssh -t "$PI_USER@$PI_HOST" "echo '24602460' | sudo -S mv $DEST_DIR/$SERVICE_NAME /etc/systemd/system/$SERVICE_NAME && echo '24602460' | sudo -S chown root:root /etc/systemd/system/$SERVICE_NAME && echo '24602460' | sudo -S systemctl daemon-reload && echo '24602460' | sudo -S systemctl enable $SERVICE_NAME && echo '24602460' | sudo -S systemctl restart $SERVICE_NAME"
+    sshpass -p "$PI_SSH_PASS" ssh -t "$PI_USER@$PI_HOST" "echo "$PI_SUDO_PASS" | sudo -S mv $DEST_DIR/$SERVICE_NAME /etc/systemd/system/$SERVICE_NAME && echo "$PI_SUDO_PASS" | sudo -S chown root:root /etc/systemd/system/$SERVICE_NAME && echo "$PI_SUDO_PASS" | sudo -S systemctl daemon-reload && echo "$PI_SUDO_PASS" | sudo -S systemctl enable $SERVICE_NAME && echo "$PI_SUDO_PASS" | sudo -S systemctl restart $SERVICE_NAME"
     
     rm ballie_camera.service
     
@@ -95,14 +97,14 @@ stop_service
 
 if [ "$INSTALL_DEPS" = true ]; then
     echo "Installing dependencies on remote..."
-    sshpass -p '2460' ssh -t "$PI_USER@$PI_HOST" "chmod +x $DEST_DIR/install_dependencies.sh && echo '24602460' | sudo -S $DEST_DIR/install_dependencies.sh && echo '24602460' | sudo -S apt-get install -y ffmpeg"
+    sshpass -p "$PI_SSH_PASS" ssh -t "$PI_USER@$PI_HOST" "chmod +x $DEST_DIR/install_dependencies.sh && echo "$PI_SUDO_PASS" | sudo -S $DEST_DIR/install_dependencies.sh && echo "$PI_SUDO_PASS" | sudo -S apt-get install -y ffmpeg"
 else
     echo "Skipping dependency check (run with 'dependencies_check' to enable)."
 fi
 
 # Factory setup routine (Always Prompt)
     echo "Checking for Pico flash override..."
-    sshpass -p '2460' ssh -t "$PI_USER@$PI_HOST" "
+    sshpass -p "$PI_SSH_PASS" ssh -t "$PI_USER@$PI_HOST" "
         echo ''
         echo '==============================================================='
         echo 'FACTORY PICO SETUP / RECOVERY'
@@ -115,11 +117,11 @@ fi
             echo 'Looking for RPI-RP2 drive (/dev/sda1)...'
             sleep 2
             if [ -b /dev/sda1 ]; then
-                echo '24602460' | sudo -S mkdir -p /mnt/pico
-                echo '24602460' | sudo -S mount /dev/sda1 /mnt/pico
+                echo "$PI_SUDO_PASS" | sudo -S mkdir -p /mnt/pico
+                echo "$PI_SUDO_PASS" | sudo -S mount /dev/sda1 /mnt/pico
                 echo 'Flashing pimoroni-pico2-micropython.uf2...'
-                echo '24602460' | sudo -S cp $DEST_DIR/pico-shim-firmware/pimoroni-pico2-micropython.uf2 /mnt/pico/
-                echo '24602460' | sudo -S sync
+                echo "$PI_SUDO_PASS" | sudo -S cp $DEST_DIR/pico-shim-firmware/pimoroni-pico2-micropython.uf2 /mnt/pico/
+                echo "$PI_SUDO_PASS" | sudo -S sync
                 echo 'UF2 flashed. Pico should reboot as /dev/ttyACM0.'
                 sleep 5
             else
@@ -145,12 +147,12 @@ echo ""
 echo "Cleaning up stale serial processes..."
 pkill -9 -f "mpremote connect /dev/ttyACM0" 2>/dev/null
 pkill -9 -f "python3.*ttyACM0" 2>/dev/null
-sshpass -p '2460' ssh -t "$PI_USER@$PI_HOST" "echo '24602460' | sudo -S killall -9 python python3 2>/dev/null" || true
+sshpass -p "$PI_SSH_PASS" ssh -t "$PI_USER@$PI_HOST" "echo "$PI_SUDO_PASS" | sudo -S killall -9 python python3 2>/dev/null" || true
 sleep 1
 
 # Start camera on Pi Zero in the background
 echo "Starting camera_feed.py on Pi Zero (background)..."
-sshpass -p '2460' ssh -t "$PI_USER@$PI_HOST" "echo '24602460' | sudo -S python3 $DEST_DIR/camera_feed.py" &
+sshpass -p "$PI_SSH_PASS" ssh -t "$PI_USER@$PI_HOST" "echo "$PI_SUDO_PASS" | sudo -S python3 $DEST_DIR/camera_feed.py" &
 CAMERA_PID=$!
 
 # Cleanup function — kills camera SSH + restores terminal
@@ -167,7 +169,7 @@ trap cleanup INT TERM
 # Launch keyboard motor control
 if [ -e "$PICO_SERIAL" ]; then
     echo "Pico found locally. Starting keyboard control (USB)..."
-    echo 24602460 | sudo -S chmod a+rw "$PICO_SERIAL" 2>/dev/null
+    echo "$PI_SUDO_PASS" | sudo -S chmod a+rw "$PICO_SERIAL" 2>/dev/null
 
     # Reset Pico locally
     echo "Resetting Pico..."
@@ -188,7 +190,7 @@ except Exception as e:
 else
     echo "Pico not found locally at $PICO_SERIAL."
     # Run complete keyboard logic remotely over SSH
-    sshpass -p '2460' ssh -t -t "$PI_USER@$PI_HOST" "
+    sshpass -p "$PI_SSH_PASS" ssh -t -t "$PI_USER@$PI_HOST" "
         PICO_DEV='/dev/serial0'
         echo \"[REMOTE] Connecting to Pico via \$PICO_DEV (UART0)...\"
         

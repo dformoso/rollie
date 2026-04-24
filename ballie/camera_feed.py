@@ -36,11 +36,12 @@ WIDTH = 240
 HEIGHT = 280
 FPS = 50
 
-# User Configuration for Auto-Copy
-USER_IP = "192.168.50.254"
-USER_NAME = "daniel"
-USER_PASS = "24602460"
-DEST_DIR = "/home/daniel/programming/ballie/ballie/recordings"
+# User configuration — copy ballie/config.py.example to ballie/config.py and fill in your values
+try:
+    from config import USER_IP, USER_NAME, USER_PASS, DEST_DIR
+except ImportError:
+    print("Error: config.py not found. Copy config.py.example to config.py and fill in your values.")
+    sys.exit(1)
 
 def signal_handler(sig, frame):
     print("\nExiting...")
