@@ -4,7 +4,17 @@
 
 ![Hero shot of the assembled ball on a clean surface](images/hero_ball.jpg)
 
-A gravity-stabilised spherical robot — a camera on wheels, where the "wheels" are a hollow 120mm ball and the camera floats at the centre of gravity, always level. It rolls by shifting its own internal mass: pitch the internal weighted platform forward and the ball follows.
+A gravity-stabilised spherical robot — a camera on wheels, where the "wheels" are a hollow 120mm ball and the camera floats at the centre of gravity. It rolls by shifting its own internal mass: pitch the internal weighted platform forward and the ball follows.
+
+---
+
+## Motivation
+
+This project began with a simple wish: to have more photos and videos together with my son.
+
+I came across [Samsung's concept robot Ballie](https://news.samsung.com/global/ballie-a-rolling-robotic-companion-from-samsung) — a cheerful, rolling ball that follows you around — and thought: *what if I built one myself?* A little companion that could chase us around the house and capture the everyday moments that are so easy to miss.
+
+The project felt like the right kind of ambitious. Complex enough to keep me engaged for years, but tangible enough to make real progress in the hour I carve out each evening after he goes to sleep. It keeps my hands busy, my mind sharp, and — if it all works out — gives us a few more memories along the way.
 
 ---
 
@@ -12,7 +22,7 @@ A gravity-stabilised spherical robot — a camera on wheels, where the "wheels" 
 
 This project started as a question: *how far can AI assistance extend beyond software development?*
 
-The code is the least interesting part. Every other engineering layer was designed in collaboration with AI models:
+The code is the least interesting part. Every engineering layer was designed in collaboration with AI models:
 
 - **Mechanical design** — the slewing bearing rings, stator frame, cradle, and motor hubs were designed iteratively in OpenSCAD with AI help: from geometry constraints and print tolerance adjustments to resolving mechanical interference across 13+ versions of each part.
 - **Electronic engineering** — wiring layout, component selection, pin assignment (including resolving conflicts between the Motor SHIM's DRV8833, I2C bus, and UART0), and power budgeting were all mapped with AI assistance.
@@ -30,7 +40,7 @@ The robot is a physical artefact of that process. It exists to answer the questi
 
 ![Exploded view showing both shell halves separated from the stator](images/exploded_view.jpg)
 
-Inside the ball is a weighted internal platform — the *stator* — that hangs like a pendulum. Gravity pulls its battery-laden base downward, keeping it vertical. Two motors mounted on the stator drive the outer shell (the *rotor*) through 75mm lazy Susan bearings. Because the stator resists rotation (gravity), the motor reaction force rolls the shell.
+Inside the ball is a weighted internal platform — the *stator* — that hangs like a pendulum. Gravity pulls its battery-laden base downward, keeping it vertical. Two motors mounted on the stator drive the outer shell (the *rotor*) through 75mm slewing bearings. Because the stator resists rotation (gravity), the motor reaction force rolls the shell.
 
 To roll forward: command the stator to pitch forward. The centre of mass shifts. The ball follows.
 
@@ -70,7 +80,7 @@ Full parts list, pin maps, and wiring tables: [docs/overview.md](docs/overview.m
 | 1 | Pimoroni Motor SHIM for Pico |
 | 2 | Pololu 50:1 Micro Metal Gearmotor HP 6V (extended shaft + encoder) |
 | 1 | Pololu 5V 3.2A Step-Down Regulator (D24V30F5) |
-| 2 | 75mm Lazy Susan Bearings |
+| 2 | 75mm Slewing Bearings |
 | 1 | GNB 7.4V 2S LiPo (XT30) |
 | 1 | PiSugar 3 Battery HAT |
 | 1 | Raspberry Pi Camera Module 3 Wide |
@@ -91,8 +101,8 @@ Print the following final STLs from [`cad/`](cad/):
 |---|---|---|
 | `stator_ring_v13.stl` | Internal weighted cylinder | Main structural part |
 | `wheel_v13.stl` | Motor wheel hubs | Print ×2 |
-| `slewing_bearing_v6_half_plate.stl` | Lazy Susan ring (rigid) | Print ×2 per bearing |
-| `slewing_bearing_flexible.stl` | Lazy Susan ring (TPU) | Alternative for grip |
+| `slewing_bearing_v6_half_plate.stl` | Slewing bearing ring (rigid) | Print ×2 per bearing |
+| `slewing_bearing_flexible.stl` | Slewing bearing ring (TPU) | Alternative for grip |
 | `cradle_v2.stl` | Electronics mounting cradle | Holds Pi + battery |
 
 SCAD source files for all parts are in `cad/`. Intermediate design iterations are preserved in [`cad/archive/`](cad/archive/).
