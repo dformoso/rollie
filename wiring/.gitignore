@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.gv
+*.png
+*.svg
+*.pdf
+*.md

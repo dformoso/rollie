@@ -10,3 +10,6 @@ venv/
 .venv
 *.log
 .DS_Store
+pico-shim-firmware/*.uf2
+.agent/
+tmp-venv/

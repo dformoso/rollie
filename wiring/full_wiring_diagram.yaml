@@ -1,0 +1,353 @@
+metadata:
+  title: Ballie Mk. I - Full Wiring Diagram
+  description: Self-balancing spherical robot - complete wiring harness
+  notes: "Split-Brain architecture: Pico (reflexes) + Pi Zero 2W (cognition)"
+
+connectors:
+  Batt:
+    type: GNB 7.4V 2S LiPo
+    subtype: XT30
+    pinlabels: [V+, V-]
+    notes: Battery
+
+  Sw:
+    type: Toggle Switch
+    pinlabels: [IN, OUT]
+    notes: Main power switch
+
+  Term:
+    type: Screw Terminal 5mm
+    subtype: 2-pin
+    pinlabels: ["+", "-"]
+    notes: CE08311
+
+  PB:
+    type: ProtoBoard 58x78mm
+    subtype: FIT0203
+    pinlabels:
+      - Screw + In     # 1
+      - GND Rail       # 2
+      - 5V Rail        # 3
+      - 3V3 Rail       # 4
+      - UART TX        # 5
+      - UART RX        # 6
+      - I2C SDA        # 7
+      - I2C SCL        # 8
+      - Left Enc A     # 9
+      - Left Enc B     # 10
+      - Right Enc A    # 11
+      - Right Enc B    # 12
+    notes: "Central hub with soldered power rails and signal pads"
+
+  Reg:
+    type: Pololu D24V30F5
+    subtype: Step-Down 5V 3.2A
+    pinlabels: [VIN, GND, VOUT 5V]
+    notes: "POLOLU-3782"
+
+  P:
+    type: Raspberry Pi Pico H
+    pinlabels:
+      - GP0 TX         # 1
+      - GP1 RX         # 2
+      - GND            # 3
+      - GP4 SDA        # 4
+      - GP5 SCL        # 5
+      - GP10 Enc LA    # 6
+      - GP11 Enc LB    # 7
+      - GP12 Enc RA    # 8
+      - GP13 Enc RB    # 9
+      - 3V3 OUT        # 10
+      - VSYS 5V        # 11
+    notes: "CE08702 - Reflexes (500Hz control loop)"
+
+  Shim:
+    type: Pimoroni Motor SHIM
+    subtype: DRV8833
+    pinlabels: [M1+, M1-, M2+, M2-]
+    notes: "PIM617 - Soldered onto Pico"
+
+  Pi:
+    type: Raspberry Pi Zero 2 W
+    pinlabels: [5V In, GND, TX GPIO14, RX GPIO15]
+    notes: "CE08211 - Cognition (Linux, WiFi, Camera)"
+
+  IMU:
+    type: Adafruit BNO055
+    subtype: STEMMA QT
+    pinlabels: [VIN, GND, SDA, SCL]
+    notes: "ADA4646 - 9-DOF Orientation Sensor"
+
+  LM:
+    type: Pololu 50:1 HP 6V
+    subtype: w/ 12 CPR Encoder
+    pinlabels: [Motor +, Motor -, Enc VCC, Enc GND, Enc A, Enc B]
+    notes: "POLOLU-5161"
+
+  RM:
+    type: Pololu 50:1 HP 6V
+    subtype: w/ 12 CPR Encoder
+    pinlabels: [Motor +, Motor -, Enc VCC, Enc GND, Enc A, Enc B]
+    notes: "POLOLU-5161"
+
+cables:
+  CABLE - Batt to Sw:
+    colors: [RD]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - Switch to Term:
+    colors: [RD]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - Batt GND:
+    colors: [BK]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - Term + to PB:
+    colors: [RD]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - Term GND to PB:
+    colors: [BK]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - PB to Reg:
+    colors: [RD, BK]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - Reg 5V Out:
+    colors: [OG]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - 5V to P:
+    colors: [OG]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - 5V to Pi:
+    colors: [OG]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - GND to P:
+    colors: [BK]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - GND to Pi:
+    colors: [BK]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - GND to IMU:
+    colors: [BK]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - 3V3 from P:
+    colors: [RD]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - 3V3 to IMU:
+    colors: [BU]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - UART P Side:
+    colors: [YE, OG]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - UART Pi Side:
+    colors: [YE, OG]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - I2C P Side:
+    colors: [GN, GN]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - I2C IMU Side:
+    colors: [GN, GN]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - Left Enc Sig:
+    colors: [YE, WH]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - Right Enc Sig:
+    colors: [YE, WH]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - LM Drive:
+    colors: [RD, BK]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - LM Enc Cable:
+    colors: [BU, GN, YE, WH]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - RM Drive:
+    colors: [RD, BK]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - RM Enc Cable:
+    colors: [BU, GN, YE, WH]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+connections:
+  # === POWER INPUT CHAIN ===
+  -
+    - Batt: [1]
+    - CABLE - Batt to Sw: [1]
+    - Sw: [1]
+  -
+    - Sw: [2]
+    - CABLE - Switch to Term: [1]
+    - Term: [1]
+  -
+    - Batt: [2]
+    - CABLE - Batt GND: [1]
+    - Term: [2]
+  -
+    - Term: [1]
+    - CABLE - Term + to PB: [1]
+    - PB: [1]
+  -
+    - Term: [2]
+    - CABLE - Term GND to PB: [1]
+    - PB: [2]
+
+  # === REGULATOR ===
+  -
+    - PB: [1, 2]
+    - CABLE - PB to Reg: [1, 2]
+    - Reg: [1, 2]
+  -
+    - Reg: [3]
+    - CABLE - Reg 5V Out: [1]
+    - PB: [3]
+
+  # === 5V DISTRIBUTION ===
+  -
+    - PB: [3]
+    - CABLE - 5V to P: [1]
+    - P: [11]
+  -
+    - PB: [3]
+    - CABLE - 5V to Pi: [1]
+    - Pi: [1]
+
+  # === GND DISTRIBUTION ===
+  -
+    - PB: [2]
+    - CABLE - GND to P: [1]
+    - P: [3]
+  -
+    - PB: [2]
+    - CABLE - GND to Pi: [1]
+    - Pi: [2]
+  -
+    - PB: [2]
+    - CABLE - GND to IMU: [1]
+    - IMU: [2]
+
+  # === 3V3 ===
+  -
+    - P: [10]
+    - CABLE - 3V3 from P: [1]
+    - PB: [4]
+  -
+    - PB: [4]
+    - CABLE - 3V3 to IMU: [1]
+    - IMU: [1]
+
+  # === UART ===
+  -
+    - P: [1, 2]
+    - CABLE - UART P Side: [1, 2]
+    - PB: [5, 6]
+  -
+    - PB: [5, 6]
+    - CABLE - UART Pi Side: [1, 2]
+    - Pi: [4, 3]
+
+  # === I2C ===
+  -
+    - P: [4, 5]
+    - CABLE - I2C P Side: [1, 2]
+    - PB: [7, 8]
+  -
+    - PB: [7, 8]
+    - CABLE - I2C IMU Side: [1, 2]
+    - IMU: [3, 4]
+
+  # === ENCODER SIGNALS ===
+  -
+    - P: [6, 7]
+    - CABLE - Left Enc Sig: [1, 2]
+    - PB: [9, 10]
+  -
+    - P: [8, 9]
+    - CABLE - Right Enc Sig: [1, 2]
+    - PB: [11, 12]
+
+  # === LEFT MOTOR ===
+  -
+    - Shim: [1, 2]
+    - CABLE - LM Drive: [1, 2]
+    - LM: [1, 2]
+  -
+    - PB: [4, 2, 9, 10]
+    - CABLE - LM Enc Cable: [1, 2, 3, 4]
+    - LM: [3, 4, 5, 6]
+
+  # === RIGHT MOTOR ===
+  -
+    - Shim: [3, 4]
+    - CABLE - RM Drive: [1, 2]
+    - RM: [1, 2]
+  -
+    - PB: [4, 2, 11, 12]
+    - CABLE - RM Enc Cable: [1, 2, 3, 4]
+    - RM: [3, 4, 5, 6]

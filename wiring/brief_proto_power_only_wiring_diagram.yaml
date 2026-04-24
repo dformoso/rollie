@@ -1,0 +1,272 @@
+metadata:
+  title: Ballie Mk. I - Brief Wiring (Proto Power Only)
+  description: Self-balancing spherical robot - protoboard for power rails only
+  notes: "Protoboard distributes power only. All signals run direct between components."
+
+connectors:
+  Batt:
+    type: GNB 7.4V 2S LiPo
+    subtype: XT30
+    pinlabels: [V+, V-]
+    notes: Battery
+
+  Reg:
+    type: Pololu D24V30F5
+    subtype: Step-Down 5V 3.2A
+    pinlabels: [VIN, GND, VOUT 5V]
+    notes: "POLOLU-3782"
+
+  PB:
+    type: ProtoBoard 58x78mm
+    subtype: FIT0203
+    pinlabels:
+      - V+ In (7.4V)   # 1
+      - GND Rail       # 2
+      - 5V Rail (Reg)  # 3
+      - 3V3 Rail       # 4
+    notes: "Power rails only: 7.4V input, GND, 5V regulated output, 3V3"
+
+  P:
+    type: Raspberry Pi Pico H
+    pinlabels:
+      - VSYS 5V        # 1
+      - GND            # 2
+      - 3V3 OUT        # 3
+      - GP0 TX         # 4
+      - GP1 RX         # 5
+      - GP4 SDA        # 6
+      - GP5 SCL        # 7
+      - GP10 Enc LA    # 8
+      - GP11 Enc LB    # 9
+      - GP12 Enc RA    # 10
+      - GP13 Enc RB    # 11
+    notes: "CE08702 - Reflexes (500Hz balance loop)"
+
+  Shim:
+    type: Pimoroni Motor SHIM
+    subtype: DRV8833
+    pinlabels:
+      - M1+            # 1
+      - M1-            # 2
+      - M2+            # 3
+      - M2-            # 4
+      - VSYS (In)      # 5
+      - GND (In)       # 6
+    notes: "PIM617 - Soldered onto Pico (Shares VSYS/GND)"
+
+  Pi:
+    type: Raspberry Pi Zero 2 W
+    pinlabels: [5V In, GND, TX GPIO14, RX GPIO15]
+    notes: "CE08211 - Cognition (Linux, WiFi, Camera)"
+
+  IMU:
+    type: Adafruit BNO055
+    subtype: STEMMA QT 9-DOF
+    pinlabels: [VIN 3V3, GND, SDA, SCL]
+    notes: "ADA4646 - Orientation Sensor"
+
+  LM:
+    type: Pololu 50:1 HP 6V
+    subtype: w/ 12 CPR Encoder
+    pinlabels: [Motor +, Motor -, Enc VCC, Enc GND, Enc A, Enc B]
+    notes: "POLOLU-5161"
+
+  RM:
+    type: Pololu 50:1 HP 6V
+    subtype: w/ 12 CPR Encoder
+    pinlabels: [Motor +, Motor -, Enc VCC, Enc GND, Enc A, Enc B]
+    notes: "POLOLU-5161"
+
+cables:
+  # --- POWER INPUT & REGULATION ---
+  CABLE - Batt to PB:
+    colors: [RD, BK]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - PB to Reg:
+    colors: [RD, BK]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - Reg 5V Out:
+    colors: [OG]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  # --- POWER DISTRIBUTION ---
+  CABLE - Power to P:
+    colors: [OG, BK]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - Power to Pi:
+    colors: [OG, BK]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - 3V3 from P:
+    colors: [RD]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - IMU Power:
+    colors: [BU, BK]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - Shim Internal Power:
+    colors: [OG, BK]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  # --- UART (direct) ---
+  CABLE - UART Direct:
+    # Removed redundant GND (BK) - handled by main power rail
+    colors: [YE, OG]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  # --- I2C (direct) ---
+  CABLE - I2C Direct:
+    # Removed redundant GND (BK) - handled by main power rail
+    colors: [GN, GN]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  # --- ENCODER SIGNALS (direct) ---
+  CABLE - Left Enc Sig:
+    colors: [YE, WH]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - Right Enc Sig:
+    colors: [YE, WH]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  # --- MOTORS (direct) ---
+  CABLE - LM Drive:
+    colors: [RD, BK]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - LM Enc Cable:
+    # Colors trimmed to match usage
+    colors: [BU, GN]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - RM Drive:
+    colors: [RD, BK]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+  CABLE - RM Enc Cable:
+    # Colors trimmed to match usage
+    colors: [BU, GN]
+    category: bundle
+    show_name: false
+    show_wirecount: false
+
+connections:
+  # === BATTERY & REGULATOR ===
+  -
+    - Batt: [1, 2]
+    - CABLE - Batt to PB: [1, 2]
+    - PB: [1, 2]
+  -
+    - PB: [1, 2]
+    - CABLE - PB to Reg: [1, 2]
+    - Reg: [1, 2]
+  -
+    - Reg: [3]
+    - CABLE - Reg 5V Out: [1]
+    - PB: [3]
+
+  # === 5V & GND DISTRIBUTION ===
+  -
+    - PB: [3, 2]
+    - CABLE - Power to P: [1, 2]
+    - P: [1, 2]
+  -
+    - PB: [3, 2]
+    - CABLE - Power to Pi: [1, 2]
+    - Pi: [1, 2]
+
+  # === SHIM POWER (Internal/Soldered) ===
+  -
+    - P: [1, 2]
+    - CABLE - Shim Internal Power: [1, 2]
+    - Shim: [5, 6]
+
+  # === 3V3 ===
+  -
+    - P: [3]
+    - CABLE - 3V3 from P: [1]
+    - PB: [4]
+
+  # === IMU POWER (from 3V3 + GND) ===
+  -
+    - PB: [4, 2]
+    - CABLE - IMU Power: [1, 2]
+    - IMU: [1, 2]
+
+  # === UART (direct P <-> Pi, crossed) ===
+  # Removed GND connection here
+  -
+    - P: [4, 5]
+    - CABLE - UART Direct: [1, 2]
+    - Pi: [4, 3]
+
+  # === I2C (direct P -> IMU) ===
+  # Removed GND connection here
+  -
+    - P: [6, 7]
+    - CABLE - I2C Direct: [1, 2]
+    - IMU: [3, 4]
+
+  # === ENCODER SIGNALS (direct P -> Motors) ===
+  -
+    - P: [8, 9]
+    - CABLE - Left Enc Sig: [1, 2]
+    - LM: [5, 6]
+  -
+    - P: [10, 11]
+    - CABLE - Right Enc Sig: [1, 2]
+    - RM: [5, 6]
+
+  # === LEFT MOTOR ===
+  -
+    - Shim: [1, 2]
+    - CABLE - LM Drive: [1, 2]
+    - LM: [1, 2]
+  -
+    - PB: [4, 2]
+    - CABLE - LM Enc Cable: [1, 2]
+    - LM: [3, 4]
+
+  # === RIGHT MOTOR ===
+  -
+    - Shim: [3, 4]
+    - CABLE - RM Drive: [1, 2]
+    - RM: [1, 2]
+  -
+    - PB: [4, 2]
+    - CABLE - RM Enc Cable: [1, 2]
+    - RM: [3, 4]
