@@ -3,6 +3,7 @@
 ![Version](https://img.shields.io/badge/version-v0.1-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
 <img src="images/hero_ball_live_screen.jpg" alt="Assembled Ballie — red 3D-printed shells closed around the internal stator, WhisPlay screen showing the live camera feed" width="320" align="right">
+<img src="images/hero_ball_live_screen_camera.jpg" alt="Front view through the equatorial gap — Camera Module 3 Wide and BNO055 IMU exposed between the two red shell halves" width="320" align="right">
 
 A gravity-stabilised spherical robot — a camera on wheels, where the "wheels" are a hollow 120mm ball and the camera floats at the centre of gravity. It rolls by shifting its own internal mass: pitch the internal weighted platform forward and the ball follows.
 
