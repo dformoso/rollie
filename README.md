@@ -14,8 +14,6 @@ A gravity-stabilised spherical robot — a camera on wheels, where the "wheels" 
 
 This project began with a simple wish: to have more photos and videos together with my son.
 
-<img src="images/samsung_ballie_concept.png" alt="Samsung's 2020 Ballie concept — a small yellow rolling robot, the inspiration for this build" width="320">
-
 I came across [Samsung's concept robot Ballie](https://news.samsung.com/global/ballie-a-rolling-robotic-companion-from-samsung) — a cheerful, rolling ball that follows you around — and thought: *what if I built one myself?* A little companion that could chase us around the house and capture the everyday moments that are so easy to miss.
 
 The project felt like the right kind of ambitious. Complex enough to keep me engaged for years, but tangible enough to make real progress in the hour I carve out each evening after he goes to sleep. It keeps my hands busy, my mind sharp, and — if it all works out — gives us a few more memories along the way.
@@ -123,13 +121,10 @@ SCAD source files for all parts are in `cad/`. Intermediate design iterations ar
 
 ### Assembly and Wiring
 
-![First wiring session — stator open with Pi Zero and Pico on long jumpers, no shells yet](images/wip_stator_first_power.jpg)
-
-![Same session, top-down — stator interior with motor seated, electronics laid out around it](images/wip_stator_top_view.jpg)
-
+<img src="images/wip_stator_first_power.jpg" alt="First wiring session — stator open with Pi Zero and Pico on long jumpers, no shells yet" width="320">
+<img src="images/wip_stator_top_view.jpg" alt="Same session, top-down — stator interior with motor seated, electronics laid out around it" width="320">
 <img src="images/stator_subassembly.jpg" alt="Stator subassembly mid-rewire — motors and brass hubs visible, Pi Zero and Pico/Motor SHIM stack laid out alongside" width="320">
-
-![Zoomed-in detail of the wiring diagram, showing rails, terminal blocks, and jumpers](images/wiring_diagram_detail.png)
+<img src="images/wiring_diagram_detail.png" alt="Zoomed-in detail of the wiring diagram, showing rails, terminal blocks, and jumpers" width="320">
 
 See [docs/overview.md](docs/overview.md) for:
 
