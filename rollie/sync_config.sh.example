@@ -13,11 +13,11 @@ PI_SSH_PASS="your_ssh_password"
 # Sudo password on the Pi Zero (used for systemd, mount, chmod commands)
 PI_SUDO_PASS="your_sudo_password"
 
-# Path to the ballie/ source directory on your dev machine
-SOURCE_DIR="/path/to/ballie/ballie/"
+# Path to the rollie/ source directory on your dev machine
+SOURCE_DIR="/path/to/rollie/rollie/"
 
 # Destination path on the Pi Zero
-DEST_DIR="/home/your_pi_username/ballie"
+DEST_DIR="/home/your_pi_username/rollie"
 
 # Path to the pico-shim-firmware directory on your dev machine
-PICO_FIRMWARE_DIR="/path/to/ballie/pico-shim-firmware"
+PICO_FIRMWARE_DIR="/path/to/rollie/pico-shim-firmware"

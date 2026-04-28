@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Angular Contact Slewing Bearing for "Ballie Mk. I"
+   Angular Contact Slewing Bearing for "Rollie Mk. I"
    Split Outer Ring & Single-Sided Axles (Values Aligned to Original)
    FLAT PRINT LAYOUT (Designed for 256x256mm Build Plate)
    ========================================================================== */

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Ballie Mk. I — Keyboard Motor Control
+Rollie Mk. I — Keyboard Motor Control
 
 Runs on the dev machine (connected to Pico via USB serial).
 Reads keyboard input and sends angle commands to the Pico.
@@ -101,7 +101,7 @@ def main():
         # Print instructions AFTER entering raw mode and flushing
         sys.stdout.write("\r\n")
         sys.stdout.write("=" * 60 + "\r\n")
-        sys.stdout.write("  BALLIE KEYBOARD CONTROL\r\n")
+        sys.stdout.write("  ROLLIE KEYBOARD CONTROL\r\n")
         sys.stdout.write("=" * 60 + "\r\n")
         sys.stdout.write(f"  W/Up = Forward    S/Down = Backward\r\n")
         sys.stdout.write(f"  A/Left = Turn Left  D/Right = Turn Right\r\n")

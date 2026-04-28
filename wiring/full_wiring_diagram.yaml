@@ -1,5 +1,5 @@
 metadata:
-  title: Ballie Mk. I - Full Wiring Diagram
+  title: Rollie Mk. I - Full Wiring Diagram
   description: Self-balancing spherical robot - complete wiring harness
   notes: "Split-Brain architecture: Pico (reflexes) + Pi Zero 2W (cognition)"
 

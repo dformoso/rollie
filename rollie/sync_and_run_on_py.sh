@@ -8,7 +8,7 @@ if [ ! -f "$SCRIPT_DIR/sync_config.sh" ]; then
 fi
 source "$SCRIPT_DIR/sync_config.sh"
 
-SERVICE_NAME="ballie_camera.service"
+SERVICE_NAME="rollie_camera.service"
 PICO_SERIAL="/dev/ttyACM0"
 
 # Arguments
@@ -64,9 +64,9 @@ sshpass -p "$PI_SSH_PASS" rsync -av --delete --exclude '__pycache__/' --exclude 
 if [ "$MODE" == "background_on" ]; then
     echo "Setting up $SERVICE_NAME on remote..."
     
-    cat > ballie_camera.service <<EOF
+    cat > rollie_camera.service <<EOF
 [Unit]
-Description=Ballie Camera Feed
+Description=Rollie Camera Feed
 After=network.target
 
 [Service]
@@ -82,11 +82,11 @@ WantedBy=multi-user.target
 EOF
 
     echo "Copying service file to remote..."
-    sshpass -p "$PI_SSH_PASS" scp ballie_camera.service "$PI_USER@$PI_HOST:$DEST_DIR/$SERVICE_NAME"
+    sshpass -p "$PI_SSH_PASS" scp rollie_camera.service "$PI_USER@$PI_HOST:$DEST_DIR/$SERVICE_NAME"
     
     sshpass -p "$PI_SSH_PASS" ssh -t "$PI_USER@$PI_HOST" "echo "$PI_SUDO_PASS" | sudo -S mv $DEST_DIR/$SERVICE_NAME /etc/systemd/system/$SERVICE_NAME && echo "$PI_SUDO_PASS" | sudo -S chown root:root /etc/systemd/system/$SERVICE_NAME && echo "$PI_SUDO_PASS" | sudo -S systemctl daemon-reload && echo "$PI_SUDO_PASS" | sudo -S systemctl enable $SERVICE_NAME && echo "$PI_SUDO_PASS" | sudo -S systemctl restart $SERVICE_NAME"
     
-    rm ballie_camera.service
+    rm rollie_camera.service
     
     echo "$SERVICE_NAME started and enabled on boot."
     exit 0

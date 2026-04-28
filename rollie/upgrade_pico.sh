@@ -1,5 +1,5 @@
 #!/bin/bash
-PICO_FIRMWARE_SRC="/home/daniel/programming/ballie/pico-shim-firmware"
+PICO_FIRMWARE_SRC="/home/daniel/programming/rollie/pico-shim-firmware"
 
 echo "==============================================================="
 echo "PICO 2 W USB FLASH SCRIPT"

@@ -1,6 +1,6 @@
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'ballie'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'rollie'))
 
 import time
 from stats import SystemStats

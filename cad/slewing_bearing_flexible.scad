@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Angular Contact Slewing Bearing for "Ballie Mk. I"
+   Angular Contact Slewing Bearing for "Rollie Mk. I"
    Approach A: Hybrid Geometry Fix (Chamfered Tolerances)
    FLAT PRINT LAYOUT (Designed for 256x256mm Build Plate)
    ========================================================================== */

@@ -1,10 +1,10 @@
-# Ballie
+# Rollie
 
 ![Version](https://img.shields.io/badge/version-v0.1-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
 A gravity-stabilised spherical robot — a camera on wheels, where the "wheels" are a hollow 120mm ball and the camera floats at the centre of gravity. It rolls by shifting its own internal mass: pitch the internal weighted platform forward and the ball follows.
 
-<img src="images/hero_ball_live_screen.jpg" alt="Assembled Ballie — red 3D-printed shells closed around the internal stator, WhisPlay screen showing the live camera feed" height="320">&nbsp;&nbsp;<img src="images/hero_ball_live_screen_camera.jpg" alt="Front view through the equatorial gap — Camera Module 3 Wide and BNO055 IMU exposed between the two red shell halves" height="320">
+<img src="images/hero_ball_live_screen.jpg" alt="Assembled Rollie — red 3D-printed shells closed around the internal stator, WhisPlay screen showing the live camera feed" height="320">&nbsp;&nbsp;<img src="images/hero_ball_live_screen_camera.jpg" alt="Front view through the equatorial gap — Camera Module 3 Wide and BNO055 IMU exposed between the two red shell halves" height="320">
 
 ---
 
@@ -42,7 +42,7 @@ The code is the least interesting part. Every engineering layer was designed in 
 
 The robot is a physical artefact of that process. It exists to answer the question concretely.
 
-**What AI is not doing (yet):** the models are not steering the robot. Autonomous navigation and perception are a future goal, likely with a small onboard model (Gemma-class). For now, Ballie is remote-controlled.
+**What AI is not doing (yet):** the models are not steering the robot. Autonomous navigation and perception are a future goal, likely with a small onboard model (Gemma-class). For now, Rollie is remote-controlled.
 
 ---
 
@@ -150,7 +150,7 @@ The three firmware files are:
 ### Pi Zero Setup
 
 ```bash
-cd ballie/
+cd rollie/
 cp config.py.example config.py       # fill in your values
 bash install_dependencies.sh
 ```
@@ -183,7 +183,7 @@ python3 pico-shim-firmware/keyboard_control.py
 ### Full Deploy to Pi Zero
 
 ```bash
-cd ballie/
+cd rollie/
 cp sync_config.sh.example sync_config.sh   # fill in Pi IP and credentials
 bash sync_and_run_on_py.sh                 # sync + run in foreground
 bash sync_and_run_on_py.sh background on   # install as a systemd service
@@ -193,7 +193,7 @@ bash sync_and_run_on_py.sh background on   # install as a systemd service
 
 ## Current State — v0.1
 
-<img src="images/assembled_ball_front_screen.jpg" alt="Assembled Ballie, front-on, screen showing the live camera feed through the equatorial gap" width="240">&nbsp;&nbsp;<img src="images/assembled_ball_back.jpg" alt="Assembled Ballie, side/back view, shells closed" width="240">&nbsp;&nbsp;<img src="images/assembled_ball_camera_imu.jpg" alt="Front view through the equatorial gap — Camera Module 3 and BNO055 IMU exposed between the two red shell halves" width="240">
+<img src="images/assembled_ball_front_screen.jpg" alt="Assembled Rollie, front-on, screen showing the live camera feed through the equatorial gap" width="240">&nbsp;&nbsp;<img src="images/assembled_ball_back.jpg" alt="Assembled Rollie, side/back view, shells closed" width="240">&nbsp;&nbsp;<img src="images/assembled_ball_camera_imu.jpg" alt="Front view through the equatorial gap — Camera Module 3 and BNO055 IMU exposed between the two red shell halves" width="240">
 
 A short clip of it rolling: [`images/ball_rolling.mp4`](images/ball_rolling.mp4).
 

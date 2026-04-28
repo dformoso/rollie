@@ -1,4 +1,4 @@
-// Ballie Mk. I - Fully Parametric Segmented Stator
+// Rollie Mk. I - Fully Parametric Segmented Stator
 // All dimensions in metric (millimeters)
 
 // --- MAIN BODY VARIABLES ---

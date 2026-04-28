@@ -1,5 +1,5 @@
 """
-Ballie Mk. I — Spherical Robot Angle Controller (main.py)
+Rollie Mk. I — Spherical Robot Angle Controller (main.py)
 Runs on Raspberry Pi Pico 2 W with Pimoroni Motor SHIM + BNO055 IMU.
 Uses standard MicroPython (no Pimoroni library — raw PWM for DRV8833).
 

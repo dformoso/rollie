@@ -21,7 +21,7 @@ class SystemStats:
         self.bat_history = []
         # Update is ~0.5s. 60 samples = ~30s
         self.BAT_HISTORY_LEN = 60
-        self.HISTORY_FILE = "/dev/shm/ballie_bat.json"
+        self.HISTORY_FILE = "/dev/shm/rollie_bat.json"
         
         # Load history if exists
         self.load_history()

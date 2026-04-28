@@ -1,4 +1,4 @@
-# Project Description: The "Ballie Mk. I" — Spherical Robot
+# Project Description: The "Rollie Mk. I" — Spherical Robot
 
 ## 1. Overview
 
@@ -30,7 +30,7 @@ The BNO055 runs its own Cortex-M0 sensor fusion internally — we read Euler ang
 
 ### Step 2: PID "Angle Tracking" Loop
 
-Unlike a standard balancing robot (target = 0°), in Ballie the **target angle dictates speed**.
+Unlike a standard balancing robot (target = 0°), in Rollie the **target angle dictates speed**.
 
 - **Target 0°** → stationary (camera level)
 - **Target 10°** → rolling forward at constant speed

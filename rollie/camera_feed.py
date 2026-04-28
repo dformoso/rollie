@@ -36,7 +36,7 @@ WIDTH = 240
 HEIGHT = 280
 FPS = 50
 
-# User configuration — copy ballie/config.py.example to ballie/config.py and fill in your values
+# User configuration — copy rollie/config.py.example to rollie/config.py and fill in your values
 try:
     from config import USER_IP, USER_NAME, USER_PASS, DEST_DIR
 except ImportError:

@@ -14,8 +14,8 @@ pico-shim-firmware/*.uf2
 .agent/
 tmp-venv/
 
-ballie_slides/
+rollie_slides/
 
 # Local configuration — contains credentials, never commit
-ballie/config.py
-ballie/sync_config.sh
+rollie/config.py
+rollie/sync_config.sh

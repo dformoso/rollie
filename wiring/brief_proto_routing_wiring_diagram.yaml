@@ -1,5 +1,5 @@
 metadata:
-  title: Ballie Mk. I - Brief Wiring (Proto Signal Routing)
+  title: Rollie Mk. I - Brief Wiring (Proto Signal Routing)
   description: Self-balancing spherical robot - signals routed via protoboard, UART direct
   notes: "I2C and encoders via protoboard (pull-ups, replaceability). UART and motor power direct."
 
