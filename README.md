@@ -2,7 +2,9 @@
 
 ![Version](https://img.shields.io/badge/version-v0.1-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
-![Hero shot of the assembled ball on a clean surface](images/hero_ball.jpg)
+<div align="center">
+<img src="images/hero_ball_live_screen.jpg" alt="Assembled Ballie — red 3D-printed shells closed around the internal stator, WhisPlay screen showing the live camera feed" width="420">
+</div>
 
 A gravity-stabilised spherical robot — a camera on wheels, where the "wheels" are a hollow 120mm ball and the camera floats at the centre of gravity. It rolls by shifting its own internal mass: pitch the internal weighted platform forward and the ball follows.
 
@@ -11,6 +13,8 @@ A gravity-stabilised spherical robot — a camera on wheels, where the "wheels" 
 ## Motivation
 
 This project began with a simple wish: to have more photos and videos together with my son.
+
+<img src="images/samsung_ballie_concept.png" alt="Samsung's 2020 Ballie concept — a small yellow rolling robot, the inspiration for this build" width="220">
 
 I came across [Samsung's concept robot Ballie](https://news.samsung.com/global/ballie-a-rolling-robotic-companion-from-samsung) — a cheerful, rolling ball that follows you around — and thought: *what if I built one myself?* A little companion that could chase us around the house and capture the everyday moments that are so easy to miss.
 
@@ -25,7 +29,15 @@ This project started as a question: *how far can AI assistance extend beyond sof
 The code is the least interesting part. Every engineering layer was designed in collaboration with AI models:
 
 - **Mechanical design** — the slewing bearing rings, stator frame, cradle, and motor hubs were designed iteratively in OpenSCAD with AI help: from geometry constraints and print tolerance adjustments to resolving mechanical interference across 13+ versions of each part.
-- **Electronic engineering** — wiring layout, component selection, pin assignment (including resolving conflicts between the Motor SHIM's DRV8833, I2C bus, and UART0), and power budgeting were all mapped with AI assistance.
+
+  ![OpenSCAD source on the left, rendered slewing bearing rings on the right](images/cad_slewing_bearing.png)
+
+  ![OpenSCAD source on the left, rendered stator ring on the right](images/cad_stator_ring.png)
+
+- **Electronic engineering** — wiring layout, component selection, pin assignment (including resolving conflicts between the Motor SHIM's DRV8833, I2C bus, and UART0), and power budgeting were all mapped with AI assistance from a YAML connection list rendered into a wiring diagram.
+
+  ![Wiring YAML source open in an editor next to its rendered wiring diagram](images/wiring_yaml_render.png)
+
 - **Embedded control** — the split-brain architecture, PID angle controller structure, and motor deadband calibration were designed and reasoned through with AI.
 
 The robot is a physical artefact of that process. It exists to answer the question concretely.
@@ -38,7 +50,7 @@ The robot is a physical artefact of that process. It exists to answer the questi
 
 ### The Drive Mechanism
 
-![Exploded view showing both shell halves separated from the stator](images/exploded_view.jpg)
+<img src="images/stator_drive_assembly.jpg" alt="Stator drive assembly — both 75mm slewing bearings mounted, motor hub centred, electronics nested inside, before the outer shells go on" width="320">
 
 Inside the ball is a weighted internal platform — the *stator* — that hangs like a pendulum. Gravity pulls its battery-laden base downward, keeping it vertical. Two motors mounted on the stator drive the outer shell (the *rotor*) through 75mm slewing bearings. Because the stator resists rotation (gravity), the motor reaction force rolls the shell.
 
@@ -46,7 +58,7 @@ To roll forward: command the stator to pitch forward. The centre of mass shifts.
 
 ### Architecture: The Split Brain
 
-![Close-up of the electronics stack — Pi Zero, Pico, Motor SHIM, and wiring inside the stator](images/electronics_internals.jpg)
+<img src="images/stator_camera_imu_mounted.jpg" alt="Stator with the BNO055 IMU and Camera Module 3 mounted on the top shelf, with the Pi Zero stack visible inside" width="320">
 
 | Layer | Hardware | Role |
 |---|---|---|
@@ -67,6 +79,8 @@ The Pico acts as an *angle-holding coprocessor*. It receives target pitch and ya
 ---
 
 ## Hardware
+
+![Component lineup — Pi Zero 2 W, Pico 2 W, Motor SHIM, Camera Module 3, BNO055 IMU, micro metal gearmotors, 5V regulator, 2S LiPo, jumpers, and the test gear that lived next to the bench](images/bom_components.png)
 
 Full parts list, pin maps, and wiring tables: [docs/overview.md](docs/overview.md)
 
@@ -91,9 +105,9 @@ Full parts list, pin maps, and wiring tables: [docs/overview.md](docs/overview.m
 
 ### 3D Printing
 
-![3D printed parts laid out before assembly — stator ring, wheels, slewing bearing, cradle](images/3d_parts_layout.jpg)
+<img src="images/printer.png" alt="Bambu P2S printer with AMS, mid-print on a tray of stator parts" width="320">
 
-![OpenSCAD render alongside the printed part — showing the design-to-print translation](images/cad_vs_printed.jpg)
+![OpenSCAD source for the motor wheel hub on the left, rendered 3D model on the right](images/cad_wheel.png)
 
 Print the following final STLs from [`cad/`](cad/):
 
@@ -109,7 +123,17 @@ SCAD source files for all parts are in `cad/`. Intermediate design iterations ar
 
 ### Assembly and Wiring
 
+<p align="center">
+<img src="images/wip_stator_first_power.jpg" alt="First wiring session — stator open with Pi Zero and Pico on long jumpers, no shells yet" width="380">
+<img src="images/wip_stator_top_view.jpg" alt="Same session, top-down — stator interior with motor seated, electronics laid out around it" width="380">
+</p>
+
+<img src="images/stator_subassembly.jpg" alt="Stator subassembly mid-rewire — motors and brass hubs visible, Pi Zero and Pico/Motor SHIM stack laid out alongside" width="320">
+
+![Zoomed-in detail of the wiring diagram, showing rails, terminal blocks, and jumpers](images/wiring_diagram_detail.png)
+
 See [docs/overview.md](docs/overview.md) for:
+
 - Full GPIO pin map (Motor SHIM, BNO055, UART, encoders)
 - Step-by-step wiring tables with wire colours
 - Assembly notes (SHIM sandwich, keel weight placement, cable routing)
@@ -147,7 +171,7 @@ bash install_dependencies.sh
 
 ## Usage
 
-![WhisPlay display showing the live camera feed and system HUD](images/display_live.jpg)
+<img src="images/stator_with_display.jpg" alt="WhisPlay display showing the system HUD — CPU, RAM, disk, WiFi, IP addresses, and CPU temperature — on the side of the partially-built stator" width="320">
 
 ### Keyboard Control (dev machine via USB)
 
@@ -181,7 +205,13 @@ bash sync_and_run_on_py.sh background on   # install as a systemd service
 
 ## Current State — v0.1
 
-![Ballie rolling](images/ball_rolling.gif)
+<p align="center">
+<img src="images/assembled_ball_front_screen.jpg" alt="Assembled Ballie, front-on, screen showing the live camera feed through the equatorial gap" width="240">
+<img src="images/assembled_ball_back.jpg" alt="Assembled Ballie, side/back view, shells closed" width="240">
+<img src="images/assembled_ball_camera_imu.jpg" alt="Front view through the equatorial gap — Camera Module 3 and BNO055 IMU exposed between the two red shell halves" width="240">
+</p>
+
+A short clip of it rolling: [`images/ball_rolling.mp4`](images/ball_rolling.mp4).
 
 **Working:**
 - Physical drive mechanism — ball rolls from pendulum mass shift
