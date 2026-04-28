@@ -2,11 +2,11 @@
 
 ![Version](https://img.shields.io/badge/version-v0.1-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
-<div align="center">
-<img src="images/hero_ball_live_screen.jpg" alt="Assembled Ballie — red 3D-printed shells closed around the internal stator, WhisPlay screen showing the live camera feed" width="420">
-</div>
+<img src="images/hero_ball_live_screen.jpg" alt="Assembled Ballie — red 3D-printed shells closed around the internal stator, WhisPlay screen showing the live camera feed" width="320" align="right">
 
 A gravity-stabilised spherical robot — a camera on wheels, where the "wheels" are a hollow 120mm ball and the camera floats at the centre of gravity. It rolls by shifting its own internal mass: pitch the internal weighted platform forward and the ball follows.
+
+<br clear="all">
 
 ---
 
@@ -14,7 +14,7 @@ A gravity-stabilised spherical robot — a camera on wheels, where the "wheels" 
 
 This project began with a simple wish: to have more photos and videos together with my son.
 
-<img src="images/samsung_ballie_concept.png" alt="Samsung's 2020 Ballie concept — a small yellow rolling robot, the inspiration for this build" width="220">
+<img src="images/samsung_ballie_concept.png" alt="Samsung's 2020 Ballie concept — a small yellow rolling robot, the inspiration for this build" width="320">
 
 I came across [Samsung's concept robot Ballie](https://news.samsung.com/global/ballie-a-rolling-robotic-companion-from-samsung) — a cheerful, rolling ball that follows you around — and thought: *what if I built one myself?* A little companion that could chase us around the house and capture the everyday moments that are so easy to miss.
 
@@ -123,10 +123,9 @@ SCAD source files for all parts are in `cad/`. Intermediate design iterations ar
 
 ### Assembly and Wiring
 
-<p align="center">
-<img src="images/wip_stator_first_power.jpg" alt="First wiring session — stator open with Pi Zero and Pico on long jumpers, no shells yet" width="380">
-<img src="images/wip_stator_top_view.jpg" alt="Same session, top-down — stator interior with motor seated, electronics laid out around it" width="380">
-</p>
+![First wiring session — stator open with Pi Zero and Pico on long jumpers, no shells yet](images/wip_stator_first_power.jpg)
+
+![Same session, top-down — stator interior with motor seated, electronics laid out around it](images/wip_stator_top_view.jpg)
 
 <img src="images/stator_subassembly.jpg" alt="Stator subassembly mid-rewire — motors and brass hubs visible, Pi Zero and Pico/Motor SHIM stack laid out alongside" width="320">
 
@@ -205,11 +204,9 @@ bash sync_and_run_on_py.sh background on   # install as a systemd service
 
 ## Current State — v0.1
 
-<p align="center">
-<img src="images/assembled_ball_front_screen.jpg" alt="Assembled Ballie, front-on, screen showing the live camera feed through the equatorial gap" width="240">
-<img src="images/assembled_ball_back.jpg" alt="Assembled Ballie, side/back view, shells closed" width="240">
-<img src="images/assembled_ball_camera_imu.jpg" alt="Front view through the equatorial gap — Camera Module 3 and BNO055 IMU exposed between the two red shell halves" width="240">
-</p>
+<img src="images/assembled_ball_front_screen.jpg" alt="Assembled Ballie, front-on, screen showing the live camera feed through the equatorial gap" width="320">
+<img src="images/assembled_ball_back.jpg" alt="Assembled Ballie, side/back view, shells closed" width="320">
+<img src="images/assembled_ball_camera_imu.jpg" alt="Front view through the equatorial gap — Camera Module 3 and BNO055 IMU exposed between the two red shell halves" width="320">
 
 A short clip of it rolling: [`images/ball_rolling.mp4`](images/ball_rolling.mp4).
 
