@@ -226,3 +226,7 @@ This makes the project forkable and runnable without hardware, enables RL-based 
 ## License
 
 [MIT](LICENSE) — Daniel Martinez Formoso, 2025
+
+---
+
+*Written with Gemini and Claude.*
