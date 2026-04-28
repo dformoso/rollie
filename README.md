@@ -191,9 +191,7 @@ bash sync_and_run_on_py.sh background on   # install as a systemd service
 
 ## Current State — v0.1
 
-<img src="images/assembled_ball_front_screen.jpg" alt="Assembled Ballie, front-on, screen showing the live camera feed through the equatorial gap" width="320">
-<img src="images/assembled_ball_back.jpg" alt="Assembled Ballie, side/back view, shells closed" width="320">
-<img src="images/assembled_ball_camera_imu.jpg" alt="Front view through the equatorial gap — Camera Module 3 and BNO055 IMU exposed between the two red shell halves" width="320">
+<img src="images/assembled_ball_front_screen.jpg" alt="Assembled Ballie, front-on, screen showing the live camera feed through the equatorial gap" width="240">&nbsp;&nbsp;<img src="images/assembled_ball_back.jpg" alt="Assembled Ballie, side/back view, shells closed" width="240">&nbsp;&nbsp;<img src="images/assembled_ball_camera_imu.jpg" alt="Front view through the equatorial gap — Camera Module 3 and BNO055 IMU exposed between the two red shell halves" width="240">
 
 A short clip of it rolling: [`images/ball_rolling.mp4`](images/ball_rolling.mp4).
 
