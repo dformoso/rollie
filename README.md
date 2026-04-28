@@ -118,11 +118,6 @@ Print the following final STLs from [`cad/`](cad/):
 SCAD source files for all parts are in `cad/`. Intermediate design iterations are preserved in [`cad/archive/`](cad/archive/).
 
 ### Assembly and Wiring
-
-<img src="images/wip_stator_first_power.jpg" alt="First wiring session — stator open with Pi Zero and Pico on long jumpers, no shells yet" width="320">
-<img src="images/wip_stator_top_view.jpg" alt="Same session, top-down — stator interior with motor seated, electronics laid out around it" width="320">
-<img src="images/stator_subassembly.jpg" alt="Stator subassembly mid-rewire — motors and brass hubs visible, Pi Zero and Pico/Motor SHIM stack laid out alongside" width="320">
-
 See [docs/overview.md](docs/overview.md) for:
 
 - Full GPIO pin map (Motor SHIM, BNO055, UART, encoders)
