@@ -124,7 +124,6 @@ SCAD source files for all parts are in `cad/`. Intermediate design iterations ar
 <img src="images/wip_stator_first_power.jpg" alt="First wiring session — stator open with Pi Zero and Pico on long jumpers, no shells yet" width="320">
 <img src="images/wip_stator_top_view.jpg" alt="Same session, top-down — stator interior with motor seated, electronics laid out around it" width="320">
 <img src="images/stator_subassembly.jpg" alt="Stator subassembly mid-rewire — motors and brass hubs visible, Pi Zero and Pico/Motor SHIM stack laid out alongside" width="320">
-<img src="images/wiring_diagram_detail.png" alt="Zoomed-in detail of the wiring diagram, showing rails, terminal blocks, and jumpers" width="320">
 
 See [docs/overview.md](docs/overview.md) for:
 
