@@ -30,6 +30,10 @@ The code is the least interesting part. Every engineering layer was designed in 
 
   ![OpenSCAD source on the left, rendered stator ring on the right](images/cad_stator_ring.png)
 
+  ![OpenSCAD source on the left, rendered motor wheel hub on the right](images/cad_wheel.png)
+
+- **Bill of materials** — the parts list itself (motors, regulator, IMU, bearings, battery, displays) was researched and assembled with AI assistance.
+
 - **Electronic engineering** — wiring layout, component selection, pin assignment (including resolving conflicts between the Motor SHIM's DRV8833, I2C bus, and UART0), and power budgeting were all mapped with AI assistance from a YAML connection list rendered into a wiring diagram.
 
   ![Wiring YAML source open in an editor next to its rendered wiring diagram](images/wiring_yaml_render.png)
@@ -102,8 +106,6 @@ Full parts list, pin maps, and wiring tables: [docs/overview.md](docs/overview.m
 ### 3D Printing
 
 <img src="images/printer.png" alt="Bambu P2S printer with AMS, mid-print on a tray of stator parts" width="320">
-
-![OpenSCAD source for the motor wheel hub on the left, rendered 3D model on the right](images/cad_wheel.png)
 
 Print the following final STLs from [`cad/`](cad/):
 
