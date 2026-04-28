@@ -1,0 +1,12 @@
+{
+  "name": "skills",
+  "description": "Personal Claude Code framework",
+  "skills": [
+    "./skills/model-invokable/write-a-skill",
+    "./skills/model-invokable/diagnose",
+    "./skills/model-invokable/tdd",
+    "./skills/model-invokable/grill-me",
+    "./skills/slash-only/caveman",
+    "./skills/slash-only/zoom-out"
+  ]
+}
